@@ -1,6 +1,8 @@
-console.log("js loaded");
-
 const socket = io();
+
+const urlParams = new URLSearchParams(window.location.search);
+const usr = urlParams.get('usr');
+socket.emit('user', usr);
 
 // Post any recieved messages into the message list
 socket.on('message', text => {
