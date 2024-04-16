@@ -1,4 +1,15 @@
-document.querySelector('button').onclick = () => {
+const socket = io();
+
+document.querySelector('button').onclick = async () => {
     const user = document.querySelector('input').value;
-    window.location.replace(`/chat?usr=${user}`);
+    await socket.emit('user', user);
+    window.location.replace('/chat');
 }
+
+socket.on('sendID', (dnm) => {
+    console.log('Sending ID')
+    let sessData = getCookie('gameSessionData');
+    console.log("sessData = " + sessData)
+    if(sessData === "") return;
+    socket.emit('pID', sessData.split('|')[0]);
+});
