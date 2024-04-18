@@ -32,6 +32,7 @@ io.engine.on("initial_headers", (headers, request) => {
     // Else set cookie and create player entry
     headers["set-cookie"] = cookie.serialize("gameSessionData", `${id}|${Date.now()}`, {path: '/', maxAge: 120 * 60}); //maxAge is in seconds
     players[id] = {initialized: false};
+    io.to("manager").emit("playersUpdate", players);
 });
 
 
@@ -53,8 +54,14 @@ io.on('connection', (socket) => {
                 socket.emit("log", item);
             }
         })
+
+        socket.on('transmitPlayers', () => {
+            socket.emit('playerTransmission', players);
+        })
+
         log("### Manager connected");
         socket.join("manager");
+        io.to("manager").emit("playersUpdate", players);
         return;
     }
 
@@ -113,9 +120,11 @@ io.on('connection', (socket) => {
         // Assign player name
         players[socket.data.id].user = user;
         log('Added player name ' + user + " to id " + socket.data.id);
+        io.to("manager").emit("playersUpdate", players);
 
         // Mark player initialized
         players[socket.data.id].initialized = true;
+        io.to("manager").emit("playersUpdate", players);
 
         // Redirect to play screen
         socket.emit("redirect", "/chat");
