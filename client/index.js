@@ -11,6 +11,7 @@ const io = new Server(httpServer, {
 const path = require('path');
 
 const port = 3000;
+var eventLog = [];
 
 // Serve webpage files
 app.use(express.static(path.join(__dirname, 'pages'),{extensions:['html']}));
@@ -36,44 +37,59 @@ io.engine.on("initial_headers", (headers, request) => {
 
 // Sockets setup
 io.on('connection', (socket) => {
-    console.log('A player connected');
-    //console.log(socket.handshake)
+    
     
     // Check for and parse cookie if client has one
     if(socket.handshake.headers.cookie){
         var cook = cookie.parse(socket.handshake.headers.cookie)
     }
 
+//Handle special connections
+
+    // Manager connection 
+    if(cook && Object.keys(cook).includes('manager')){
+        socket.on('transmitLog', () => {
+            for(let item of eventLog){
+                socket.emit("log", item);
+            }
+        })
+
+        log("### Manager connected");
+        return;
+    }
+
+//Handle player connections
+    log('A player connected');
+
     // If has gameSessionData cookie
     if(cook && Object.keys(cook).includes('gameSessionData')){
-        console.log("Player has gameSessionData cookie");
-        console.log(cook.gameSessionData);
+        log("Player has gameSessionData cookie " + JSON.stringify(cook.gameSessionData));
         // Set socket id
         let id = cook.gameSessionData.split('|')[0];
         socket.data.id = id;
         
         // If id from cookie is valid
         if(Object.keys(players).includes(socket.data.id)){
-            console.log("gameSessionData is valid");
+            log("gameSessionData is valid");
             // Check initialization
             if(players[id].initialized){
-                console.log("Was initialized")
+                log("Was initialized")
                 socket.emit('allowRejoin'); //Only handled by join screen
             }
             else{
-                console.log("Wasn't initialized");
+                log("Wasn't initialized");
                 socket.emit('redirect', '/join');
             }
         }
         else{
-            console.log("Game Session data invalid");
+            log("Game Session data invalid, clearing cookies");
             // Reset cookie (client handler also refreshes page)
             socket.emit('resetCookie');
         }
     }
     // Client didn't already have cookie in handshake
     else{
-        console.log("Connection had no Cookies");
+        log("Connection had no Cookies");
         socket.emit('sendID', 'plz');
     }
 
@@ -96,7 +112,7 @@ io.on('connection', (socket) => {
     socket.on('user', (user) => {
         // Assign player name
         players[socket.data.id].user = user;
-        console.log('added player name ' + user + " to id " + socket.data.id);
+        log('Added player name ' + user + " to id " + socket.data.id);
 
         // Mark player initialized
         players[socket.data.id].initialized = true;
@@ -104,7 +120,13 @@ io.on('connection', (socket) => {
         // Redirect to play screen
         socket.emit("redirect", "/chat");
     })
+
+    log("---End new connection---\n");
 });
+
+const log = (entry) => {
+    eventLog.push(new Date().toTimeString().substring(0,8) + "    " + entry)
+}
 
 // Can't use app.listen, it will create a new httpserver
 httpServer.listen(port);
