@@ -1,15 +1,31 @@
 from diffusers import AutoPipelineForText2Image
 import torch
+import socketio
 
 pipe = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16")
 pipe.to("cuda")
 
-prompt = "A cinematic shot of a baby racoon wearing an intricate italian priest robe."
+sockAddr = "http://localhost:3000"
 
-allImages = []
+prompt = " "
 
-for i in range(15):
-    allImages.append(pipe(prompt=prompt, num_inference_steps=1, guidance_scale=0.0).images[0])
+with socketio.SimpleClient() as sio:
+    sio.connect(sockAddr)
+    sio.emit("identifyGenerator")
+    
+    keepConnected = True
+    while(keepConnected):
+        event = sio.receive()
+        print(event)
+        match event[0]:
+            case "prompt":
+                prompt = event[1]
+            case "message":
+                print(event[1])
+                if event[1] == "exit":
+                    keepConnected = False
 
-for i in range(15):
-    allImages[i].show()
+
+image = pipe(prompt=prompt, num_inference_steps=1, guidance_scale=0.0).images[0]
+
+image.show()
