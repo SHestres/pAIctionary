@@ -10,7 +10,7 @@ sockAddr = "http://localhost:3000"
 prompt = " "
 
 with socketio.SimpleClient() as sio:
-    sio.connect(sockAddr)
+    sio.connect(sockAddr + "?generator=true")
     sio.emit("identifyGenerator")
     
     keepConnected = True

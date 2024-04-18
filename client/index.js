@@ -47,14 +47,14 @@ io.on('connection', (socket) => {
 //Handle special connections
 
     // Manager connection 
-    if(cook && Object.keys(cook).includes('manager')){
+    if(socket.handshake.headers.referer.split('/')[3].substring(0,6) == "manage"){
         socket.on('transmitLog', () => {
             for(let item of eventLog){
                 socket.emit("log", item);
             }
         })
-
         log("### Manager connected");
+        socket.join("manager");
         return;
     }
 
@@ -125,7 +125,10 @@ io.on('connection', (socket) => {
 });
 
 const log = (entry) => {
-    eventLog.push(new Date().toTimeString().substring(0,8) + "    " + entry)
+    let datedEntry = new Date().toTimeString().substring(0,8) + "--" + entry
+    eventLog.push(datedEntry)
+    console.log(datedEntry);
+    io.to("manager").emit('log', datedEntry);
 }
 
 // Can't use app.listen, it will create a new httpserver

@@ -8,3 +8,5 @@ socket.on("log", text => {
     el.innerHTML = text;
     document.querySelector('ul').appendChild(el);
 })
+
+//socket.on()
