@@ -10,7 +10,7 @@ sockAddr = "http://localhost:3000"
 prompt = " "
 
 with socketio.SimpleClient() as sio:
-    sio.connect(sockAddr + "?generator=true")
+    sio.connect(sockAddr)
     sio.emit("identifyGenerator")
     
     keepConnected = True
@@ -22,7 +22,7 @@ with socketio.SimpleClient() as sio:
                 prompt = event[1]
             case "message":
                 print(event[1])
-                if event[1] == "exit":
+                if "exit" in event[1]:
                     keepConnected = False
 
 

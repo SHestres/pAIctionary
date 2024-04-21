@@ -46,6 +46,12 @@ io.on('connection', (socket) => {
 
 // Handle special connections
 
+    // Generator connection (must be before any reference to referer)
+    if(socket.handshake.headers['user-agent'] && socket.handshake.headers['user-agent'].includes('python-requests')){
+        log("Generator connected");
+        return;
+    }
+
     // Manager connection 
     if(socket.handshake.headers.referer.split('/')[3].substring(0,6) == "manage"){
         socket.on('transmitLog', () => {
