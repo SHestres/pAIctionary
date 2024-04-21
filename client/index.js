@@ -112,7 +112,7 @@ io.on('connection', (socket) => {
             }
         }
         else{ // Id from cookies was invalid
-            log("Game Session data invalid, clearing cookies");
+            log("Game Session data invalid, clearing cookies and reconnecting");
             // Reset cookie (client handler also refreshes page)
             socket.emit('resetCookie');
             return;
@@ -156,10 +156,11 @@ io.on('connection', (socket) => {
         io.emit('message', `${players[socket.data.id].user} said ${message}`);
     });
 
-    /*socket.on('disconnect', () => {
-        players[socket.data.id].connected = false;
-        updateManagerPlayers();
-    })*/
+    socket.on('disconnect', () => {
+        //players[socket.data.id].connected = false;
+        //updateManagerPlayers();
+        log("Player disconnected");
+    })
 
     log("---End new connection setup---\n");
 
