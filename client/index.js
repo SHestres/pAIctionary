@@ -39,7 +39,6 @@ io.engine.on("initial_headers", (headers, request) => {
 // Sockets setup
 io.on('connection', (socket) => {
     
-    
     // Check for and parse cookie if client has one
     if(socket.handshake.headers.cookie){
         var cook = cookie.parse(socket.handshake.headers.cookie)
@@ -62,13 +61,15 @@ io.on('connection', (socket) => {
         log("### Manager connected");
         socket.join("manager");
         io.to("manager").emit("playersUpdate", players);
+        
+        // Don't do player setup
         return;
     }
 
 //Handle player connections
     log('A player connected');
 
-    // If has gameSessionData cookie
+    // Handle connection with existing cookie
     if(cook && Object.keys(cook).includes('gameSessionData')){
         log("Player has gameSessionData cookie " + JSON.stringify(cook.gameSessionData));
         // Set socket id
@@ -94,28 +95,19 @@ io.on('connection', (socket) => {
             socket.emit('resetCookie');
         }
     }
-    // Client didn't already have cookie in handshake
+    
+    // Request client data from client that didn't have a cookie in the handshake
     else{
         log("Connection had no Cookies");
         socket.emit('sendID', 'plz');
     }
-
-    // Set socketid from new cookie
+    // Handle response with client data
     socket.on('pID', (id) => {
         socket.data.id = id;
         socket.emit('redirect', '/join');
     })
 
-    // When recieving message from any connection...
-    socket.on('message', (message) => {
-        if(!Object.keys(players).includes(socket.data.id)) 
-        {socket.emit('redirect', '/join'); return;}
-
-        // Relay that message to all connections with io.emit()
-        io.emit('message', `${players[socket.data.id].user} said ${message}`);
-    });
-
-    // Player initialization (player should be valid)
+    // Handle player initialization event (player should be valid at this point)
     socket.on('user', (user) => {
         // Assign player name
         players[socket.data.id].user = user;
@@ -130,15 +122,28 @@ io.on('connection', (socket) => {
         socket.emit("redirect", "/chat");
     })
 
-    log("---End new connection---\n");
+    // Events for player sockets
+
+    // Relay recieved messages
+    socket.on('message', (message) => {
+        if(!Object.keys(players).includes(socket.data.id)) 
+        {socket.emit('redirect', '/join'); return;}
+
+        // Relay that message to all connections with io.emit()
+        io.emit('message', `${players[socket.data.id].user} said ${message}`);
+    });
+
+    log("---End new connection setup---\n");
 });
 
+// Helper to log data for manager screen
 const log = (entry) => {
     let datedEntry = new Date().toTimeString().substring(0,8) + "--" + entry
     eventLog.push(datedEntry)
-    console.log(datedEntry);
+    //console.log(datedEntry);
     io.to("manager").emit('log', datedEntry);
 }
+
 
 // Can't use app.listen, it will create a new httpserver
 httpServer.listen(port);
