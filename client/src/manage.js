@@ -15,5 +15,10 @@ socket.on("playersUpdate", players => {
     document.querySelector(".playerStat").innerHTML = JSON.stringify(players,null,2);
 })
 
+socket.on("generator", (status) => {
+    statDisplay = document.querySelector(".genStatus")
+    statDisplay.innerHTML = status ? "Connected" : "Disconnected";
+    statDisplay.style.color = status ? "#00FF00" : "#FF0000";
+})
 
 //socket.on()

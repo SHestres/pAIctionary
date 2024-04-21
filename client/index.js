@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 
 
 var players = {};
+var generatorConnected = false;
 
 // Check cookies during handshake
 io.engine.on("initial_headers", (headers, request) => {
@@ -49,6 +50,15 @@ io.on('connection', (socket) => {
     // Generator connection (must be before any reference to referer)
     if(socket.handshake.headers['user-agent'] && socket.handshake.headers['user-agent'].includes('python-requests')){
         log("Generator connected");
+        io.to("manager").emit("generator", true);
+        generatorConnected = true;
+
+        socket.on('disconnect', () => {
+            log("Generator disconnected");
+            io.to("manager").emit("generator", false);
+            generatorConnected = false;
+        })
+        
         return;
     }
 
@@ -71,6 +81,7 @@ io.on('connection', (socket) => {
         log("### Manager connected");
         socket.join("manager");
         updateManagerPlayers();
+        updateManagerGenerator();
         
         // Don't do player setup
         return;
@@ -167,6 +178,9 @@ const updateManagerPlayers = () => {
     io.to("manager").emit("playersUpdate", players);
 }
 
+const updateManagerGenerator = () => {
+    io.to("manager").emit("generator", generatorConnected);
+}
 
 // Can't use app.listen, it will create a new httpserver
 httpServer.listen(port);
