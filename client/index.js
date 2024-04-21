@@ -31,8 +31,8 @@ io.engine.on("initial_headers", (headers, request) => {
     if(request.headers.cookie && Object.keys(cookie.parse(request.headers.cookie)).includes("gameSessionData")) return;
     // Else set cookie and create player entry
     headers["set-cookie"] = cookie.serialize("gameSessionData", `${id}|${Date.now()}`, {path: '/', maxAge: 120 * 60}); //maxAge is in seconds
-    players[id] = {initialized: false};
-    io.to("manager").emit("playersUpdate", players);
+    players[id] = {initialized: false, user: "unnamed"};
+    updateManagerPlayers();
 });
 
 
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
         var cook = cookie.parse(socket.handshake.headers.cookie)
     }
 
-//Handle special connections
+// Handle special connections
 
     // Manager connection 
     if(socket.handshake.headers.referer.split('/')[3].substring(0,6) == "manage"){
@@ -58,9 +58,13 @@ io.on('connection', (socket) => {
             socket.emit('playerTransmission', players);
         })
 
+        socket.on('disconnect', (reason) => {
+            log('### Manager disconnected');
+        })
+
         log("### Manager connected");
         socket.join("manager");
-        io.to("manager").emit("playersUpdate", players);
+        updateManagerPlayers();
         
         // Don't do player setup
         return;
@@ -76,6 +80,7 @@ io.on('connection', (socket) => {
         let id = cook.gameSessionData.split('|')[0];
         socket.data.id = id;
         
+
         // If id from cookie is valid
         if(Object.keys(players).includes(socket.data.id)){
             log("gameSessionData is valid");
@@ -89,10 +94,11 @@ io.on('connection', (socket) => {
                 socket.emit('redirect', '/join');
             }
         }
-        else{
+        else{ // Id from cookies was invalid
             log("Game Session data invalid, clearing cookies");
             // Reset cookie (client handler also refreshes page)
             socket.emit('resetCookie');
+            return;
         }
     }
     
@@ -112,11 +118,11 @@ io.on('connection', (socket) => {
         // Assign player name
         players[socket.data.id].user = user;
         log('Added player name ' + user + " to id " + socket.data.id);
-        io.to("manager").emit("playersUpdate", players);
+        updateManagerPlayers()
 
         // Mark player initialized
         players[socket.data.id].initialized = true;
-        io.to("manager").emit("playersUpdate", players);
+        updateManagerPlayers()
 
         // Redirect to play screen
         socket.emit("redirect", "/chat");
@@ -133,7 +139,14 @@ io.on('connection', (socket) => {
         io.emit('message', `${players[socket.data.id].user} said ${message}`);
     });
 
+    /*socket.on('disconnect', () => {
+        players[socket.data.id].connected = false;
+        updateManagerPlayers();
+    })*/
+
     log("---End new connection setup---\n");
+
+    //log(`---Player ${players[socket.data.id].user} id:${socket.data.id} finished connecting`);
 });
 
 // Helper to log data for manager screen
@@ -142,6 +155,10 @@ const log = (entry) => {
     eventLog.push(datedEntry)
     //console.log(datedEntry);
     io.to("manager").emit('log', datedEntry);
+}
+
+const updateManagerPlayers = () => {
+    io.to("manager").emit("playersUpdate", players);
 }
 
 
