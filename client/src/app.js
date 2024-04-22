@@ -1,13 +1,26 @@
+var readyToPrompt = true;
+var lastPrompt = "";
+var waitingPrompt = "";
+
+function promptServer(prompt){
+    waitingPrompt = prompt;
+    if(readyToPrompt){
+        readyToPrompt = false;
+        lastPrompt = prompt;
+        socket.emit('prompt', prompt)
+    }
+}
+
 // Send message to the server when button is clicked
 document.querySelector('button').onclick = () => {
     const text = document.querySelector('input').value;
     // Send message to the server
-    socket.emit('prompt', text)
+    promptServer(text)
 }
 
 
 document.querySelector('input').oninput = (e) => {
-    socket.emit('prompt', e.target.value)
+    promptServer(e.target.value)
 }
 
 
@@ -18,7 +31,11 @@ socket.on('message', text => {
     document.querySelector('ul').appendChild(el);
 });
 
+// Handle recieving image from generator
 socket.on('image', image => {
+    readyToPrompt = true;
+    if(waitingPrompt != lastPrompt) promptServer(waitingPrompt);
+
     // Update image on player page
     document.querySelector('.imgResult').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`
     socket.emit('finishedImage')
