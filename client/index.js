@@ -142,7 +142,7 @@ io.on('connection', (socket) => {
         updateManagerPlayers()
 
         // Redirect to play screen
-        socket.emit("redirect", "/chat");
+        socket.emit("redirect", "/play");
     })
 
     // Events for player sockets

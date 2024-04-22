@@ -1,7 +1,7 @@
 document.querySelector('button').onclick = async () => {
     const user = document.querySelector('input').value;
     await socket.emit('user', user);
-    window.location.replace('/chat');
+    window.location.replace('/play');
 }
 
 socket.on('sendID', (dnm) => {
@@ -16,5 +16,5 @@ socket.on('allowRejoin', () => {
     let el = document.createElement('button');
     document.querySelector('body').appendChild(el);
     el.innerText = "Rejoin?";
-    el.onclick = () => document.location.href = "/chat";
+    el.onclick = () => document.location.href = "/play";
 });
