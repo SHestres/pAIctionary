@@ -64,6 +64,11 @@ io.on('connection', (socket) => {
             generatorConnected = false;
         })
         
+        socket.on('generatedImage', ({prompt, genTime, formatTime, img}) => {
+            log(`Generated image with prompt \"${prompt}\" in ${genTime} ms. Formatted in ${formatTime} ms`)
+            io.emit('image', img)
+        })
+
         return;
     }
 
@@ -164,6 +169,10 @@ io.on('connection', (socket) => {
         // Relay that message to all connections with io.emit()
         io.emit('message', `${players[socket.data.id].user} prompted ${prompt}`);
     });
+
+    socket.on('finishedImage', () => {
+        io.to('generator').emit('imageRecieved')
+    })
 
     socket.on('disconnect', () => {
         //players[socket.data.id].connected = false;
