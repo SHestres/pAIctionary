@@ -52,6 +52,7 @@ io.on('connection', (socket) => {
         log("Generator connected");
         io.to("manager").emit("generator", true);
         generatorConnected = true;
+        socket.join("generator");
 
         socket.on('disconnect', () => {
             log("Generator disconnected");
@@ -148,12 +149,16 @@ io.on('connection', (socket) => {
     // Events for player sockets
 
     // Relay recieved messages
-    socket.on('message', (message) => {
+    socket.on('prompt', (prompt) => {
+        // Likely unneeded TODO: find out
         if(!Object.keys(players).includes(socket.data.id)) 
         {socket.emit('redirect', '/join'); return;}
 
+        // Send prompt to generator
+        io.to("generator").emit("prompt", prompt);
+
         // Relay that message to all connections with io.emit()
-        io.emit('message', `${players[socket.data.id].user} said ${message}`);
+        io.emit('message', `${players[socket.data.id].user} prompted ${prompt}`);
     });
 
     socket.on('disconnect', () => {

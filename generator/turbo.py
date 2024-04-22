@@ -20,12 +20,8 @@ with socketio.SimpleClient() as sio:
         match event[0]:
             case "prompt":
                 prompt = event[1]
-            case "message":
-                print(event[1])
-                if "exit" in event[1]:
+                image = pipe(prompt=prompt, num_inference_steps=1, guidance_scale=0.0).images[0]
+                image.show()
+            case "disconnect":
+                if(event[1] == "io server disconnect"):
                     keepConnected = False
-
-
-image = pipe(prompt=prompt, num_inference_steps=1, guidance_scale=0.0).images[0]
-
-image.show()

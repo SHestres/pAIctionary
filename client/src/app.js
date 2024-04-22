@@ -2,7 +2,7 @@
 document.querySelector('button').onclick = () => {
     const text = document.querySelector('input').value;
     // Send message to the server
-    socket.emit('message', text)
+    socket.emit('prompt', text)
 }
 
 // Post any recieved messages into the message list
