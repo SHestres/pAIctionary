@@ -30,6 +30,8 @@ io.engine.on("initial_headers", (headers, request) => {
     let id = Object.keys(players).length;
     // Do nothing if it has a gameSessionData cookie
     if(request.headers.cookie && Object.keys(cookie.parse(request.headers.cookie)).includes("gameSessionData")) return;
+    // Do nothing if it's a manager connection
+    if(request.headers.referer && request.headers.referer.split('/')[3].substring(0,6) == "manage") return;
     // Else set cookie and create player entry
     headers["set-cookie"] = cookie.serialize("gameSessionData", `${id}|${Date.now()}`, {path: '/', maxAge: 120 * 60}); //maxAge is in seconds
     players[id] = {initialized: false, user: "unnamed"};
