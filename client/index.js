@@ -69,6 +69,10 @@ io.on('connection', (socket) => {
             io.emit('image', img)
         })
 
+        socket.on('stillThere', (cb) => {
+            socket.emit("yupStillHere")
+        })
+
         return;
     }
 
