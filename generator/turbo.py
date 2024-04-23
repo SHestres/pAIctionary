@@ -40,7 +40,7 @@ with socketio.SimpleClient() as sio:
     keepConnected = True
     while(keepConnected):
         try:
-            event = sio.receive(timeout=5)
+            event = sio.receive(timeout=30) # must timeout twice to close generator
         except socketio.exceptions.TimeoutError:
             if(timedOutAlready):
                 print("Can't reach server")
