@@ -37,6 +37,9 @@ with socketio.SimpleClient() as sio:
                           "formatTime" : formattingTime, "img" : formattedImage})
             case "imageRecieved":
                 print("took " + str((time.time() * 1000) - startTime) + " ms")
+            case "exitGenerator":
+                keepConnected = False
             case "disconnect":
+                print("Disconnect")
                 if(event[1] == "io server disconnect"):
                     keepConnected = False

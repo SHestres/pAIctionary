@@ -1,5 +1,9 @@
 const socket = io();
 
+document.querySelector('.generatorOffBtn').onclick = () => {
+    socket.emit("turnOffGenerator");
+}
+
 socket.emit("transmitLog");
 
 socket.on("log", text => {

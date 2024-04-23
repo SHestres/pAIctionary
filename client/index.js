@@ -84,6 +84,10 @@ io.on('connection', (socket) => {
             socket.emit('playerTransmission', players);
         })
 
+        socket.on('turnOffGenerator', () => {
+            io.to('generator').emit('exitGenerator');
+        })
+
         socket.on('disconnect', (reason) => {
             log('### Manager disconnected');
         })
