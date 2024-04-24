@@ -36,7 +36,7 @@ io.engine.on("initial_headers", (headers, request) => {
     if(request.headers.referer && request.headers.referer.split('/')[3].substring(0,6) == "manage") return;
     // Else set cookie and create player entry
     headers["set-cookie"] = cookie.serialize("gameSessionData", `${id}|${Date.now()}`, {path: '/', maxAge: 120 * 60}); //maxAge is in seconds
-    players[id] = {initialized: false, user: "unnamed"};
+    players[id] = {initialized: false, connected: false, user: "unnamed"};
     updateManagerPlayers();
 });
 
@@ -122,6 +122,11 @@ io.on('connection', (socket) => {
             // Check initialization
             if(players[id].initialized){
                 log("Was initialized")
+                log("Player connected")
+                if(socket.handshake.headers.referer.split('/')[3].substring(0,4) != "join"){
+                    players[socket.data.id].connected = true
+                    updateManagerPlayers();
+                }
                 socket.emit('allowRejoin'); //Only handled by join screen
             }
             else{
@@ -183,8 +188,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        //players[socket.data.id].connected = false;
-        //updateManagerPlayers();
+        players[socket.data.id].connected = false;
+        updateManagerPlayers();
         log("Player disconnected");
     })
 
