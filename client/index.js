@@ -15,7 +15,10 @@ var eventLog = [];
 
 // Serve webpage files
 app.use(express.static(path.join(__dirname, 'pages'),{extensions:['html']}));
-app.use('/src', express.static(path.join(__dirname, 'src'),{extensions:['html']}));
+app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/img', express.static(path.join(__dirname, 'img')));
+
 
 app.get('/', (req, res) => {
     res.redirect('/join')
@@ -102,6 +105,15 @@ io.on('connection', (socket) => {
         updateManagerGenerator();
         
         // Don't do player setup
+        return;
+    }
+
+    // Display connection
+    if(socket.handshake.headers.referer.split('/')[3].substring(0,7) == "display"){
+
+
+        log("Display Connected");
+        socket.join("display");
         return;
     }
 
