@@ -13,7 +13,7 @@
     --timerLengh: 120s;
     --duration: calc(var(--timerLength) - (var(--flipDuration) + var(--primaryDelay)));
   --flipDuration: 1s;
-  --primaryDelay: 250ms;
+  --primaryDelay: 0ms;
   /*font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));*/
 }
 /*
