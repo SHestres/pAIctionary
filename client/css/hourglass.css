@@ -10,7 +10,7 @@
 	--bg: #e3e4e8;
 	--fg: #2e3138;
 	--primary: #ff2626 /*#255ff4 */ ;
-    --timerLengh: 120s;
+    --timerLength: 120s;
     --duration: calc(var(--timerLength) - (var(--flipDuration) + var(--primaryDelay)));
   --flipDuration: 1s;
   --primaryDelay: 0ms;
