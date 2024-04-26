@@ -1,6 +1,6 @@
 :root{
     --borderSize: 20px;
-    --teamColor: #0059ff /*#ff2626*/ ;
+    --teamColor: /*#255ff4*/ #ff2626; 
 }
 
 body{
@@ -93,7 +93,7 @@ body div {
 }
 
 .timer {
-    width: 200px;
-    height: 400px;
-    background-color: black;
+    background-color: white;
+    padding: 2vw;
+    border-radius: 10px;
 }

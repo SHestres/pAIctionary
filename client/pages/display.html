@@ -7,6 +7,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script defer src="/src/display.js"></script>
     <link rel="stylesheet" href="/css/display.css">
+    <link rel="stylesheet" href="/css/hourglass.css">
 </head>
 <body>
     <div class="leftColumn">
@@ -19,11 +20,8 @@
             <div>Name</div>
             <div>Name</div>
             <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
+            <button class="redButton">Red</button>
+            <button class="blueButton">Blue</button>
         </div>
     </div>
     <div class="centerColumn">
@@ -33,7 +31,13 @@
         </div>
     </div>
     <div class="rightColumn">
-        <div class="timer"></div>
+        <div class="timer">
+            <div class="hourglass">
+                <div class="fill"></div>
+                <div class="glare"></div>      
+            </div>
+        </div>
+        <button class="timerButton">Set Timer</button>
     </div>
     
 </body>
