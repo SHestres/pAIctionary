@@ -8,37 +8,51 @@
     <script defer src="/src/display.js"></script>
     <link rel="stylesheet" href="/css/display.css">
     <link rel="stylesheet" href="/css/hourglass.css">
+    <link rel="stylesheet" href="/css/teamMaker.css">
 </head>
 <body>
-    <div class="leftColumn">
-        <div class="guessersTitle">Guessers</div>
-        <div class="guessersNamesList">
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <div>Name</div>
-            <button class="redButton">Red</button>
-            <button class="blueButton">Blue</button>
+    <div class="joinScreen">
+        <div class="teamNumSelector">
+            <button class="decreaseNumTeams"><div>-</div></button>
+            <div class="numberOfTeams"><div></div></div>
+            <button class="increaseNumTeams"><div>+</div></button>
+        </div>
+        <div class="teamColorSelectors">
+        </div>
+        <div class="finishBtnContainer">
+            <button class="finishTeamSelectBtn">Create Teams</button>
         </div>
     </div>
-    <div class="centerColumn">
-        <div class="drawerName">TestName is Drawing</div>
-        <div class="image">
-            <img src="https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg">
-        </div>
-    </div>
-    <div class="rightColumn">
-        <div class="timer">
-            <div class="hourglass">
-                <div class="fill"></div>
-                <div class="glare"></div>      
+    <div style="visibility: hidden;" class="gameScreen">
+        <div class="leftColumn">
+            <div class="guessersTitle">Guessers</div>
+            <div class="guessersNamesList">
+                <div>Name</div>
+                <div>Name</div>
+                <div>Name</div>
+                <div>Name</div>
+                <div>Name</div>
+                <div>Name</div>
+                <div>Name</div>
+                <button class="redButton">Red</button>
+                <button class="blueButton">Blue</button>
             </div>
         </div>
-        <button class="timerButton">Set Timer</button>
+        <div class="centerColumn">
+            <div class="drawerName">TestName is Drawing</div>
+            <div class="image">
+                <img hidden src="https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg">
+            </div>
+        </div>
+        <div class="rightColumn">
+            <div class="timer">
+                <div class="hourglass">
+                    <div class="fill"></div>
+                    <div class="glare"></div>      
+                </div>
+            </div>
+            <button class="timerButton">Set Timer</button>
+        </div>
     </div>
-    
 </body>
 </html>

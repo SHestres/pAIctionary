@@ -1,0 +1,124 @@
+:root {
+    --bgBlue: #255ff4;
+    --bgRed: #ff2626;
+    --bgYellow: yellow;
+    --bgGreen: green;
+    --bgPurple: #aa00aa;
+    --bgOrange: orange;
+}
+
+.joinScreen {
+    background-color: #22222288;
+    width: fit-content;
+    margin: auto;
+    padding: 5vh;
+    border-radius: 5vh;
+}
+
+.teamNumSelector{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.numberOfTeams {
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    width: 5vh;
+    height: 5vh;
+    font-size: 5vh;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.decreaseNumTeams, .increaseNumTeams {
+    width: 4vh;
+    height: 4vh;
+    font-size: 4vh;
+    text-align: center;
+    font-family: 'Menlo', 'Lucida Console', 'Monaco', 'Consolas', monospace;
+    border-radius: 5px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.teamColorSelectors{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2vh;
+    margin: 2vh;
+}
+
+.colorSelectWrapper {
+    background-color: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.colorSelectLabel {
+    font-size: 3vh;
+    padding: 10px;
+}
+
+.teamColorSelect{
+    display: grid;
+    gap: 10px;
+    margin: 2vh;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.selectableColor{
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+}
+
+.blue {
+    background-color: var(--bgBlue);
+}
+
+.red {
+    background-color: var(--bgRed);
+}
+
+.yellow{
+    background-color: var(--bgYellow);
+}
+
+.green{
+    background-color: var(--bgGreen);
+}
+
+.purple{
+    background-color: var(--bgPurple);
+}
+
+.orange{
+    background-color: var(--bgOrange);
+}
+
+.selectedColor{
+    outline: 0.5vh solid black;
+}
+
+.finishBtnContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.finishTeamSelectBtn{
+    font-size: 4vh;
+    
+}
