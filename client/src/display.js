@@ -5,11 +5,16 @@ var numberOfTeams = 2;
 
 const socket = io();
 
+var gameScreen = document.querySelector('.gameScreen');
+var teamCreateScreen = document.querySelector('.teamCreateScreen');
+gameScreen.classList.add('hide');
+
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
 document.querySelector('.timerButton').onclick = () => {setTimer(30)}
 document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
 document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
+document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
 
 document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
 
@@ -59,7 +64,6 @@ function addColorSelector(){
     let newSelector = selectors.appendChild(newColorSelectorTemplate());
     let ind= selectors.children.length - 1;
     let selCol = Array.from(newSelector.lastChild.children)[ind];
-    console.log(newSelector.firstChild);
     newSelector.firstElementChild.innerHTML = 'Team ' + (ind + 1);
     selCol.classList.add('selectedColor');
     teamColors[ind] = window.getComputedStyle(selCol).backgroundColor;
@@ -77,9 +81,7 @@ function selectColor(event){
     })
     event.target.classList.add('selectedColor');
     let ind = Array.from(event.target.parentElement.parentElement.parentElement.children).indexOf(event.target.parentElement.parentElement);
-    console.log(ind);
     teamColors[ind] = window.getComputedStyle(event.target).backgroundColor;
-    console.log(teamColors);
 }
 
 function setColor(color){
@@ -98,4 +100,10 @@ async function setTimer(time){
     document.querySelector('.hourglass').classList.remove('hgAnim')
     document.querySelector('.fill').classList.remove('fAnim')
     document.querySelector('.glare').classList.remove('gAnim')
+}
+
+function submitTeams(){
+    socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
+    teamCreateScreen.remove()
+    gameScreen.classList.remove('hide');
 }

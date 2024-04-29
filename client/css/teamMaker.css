@@ -7,7 +7,11 @@
     --bgOrange: orange;
 }
 
-.joinScreen {
+.hide {
+    visibility: hidden;
+}
+
+.teamCreateScreen {
     background-color: #22222288;
     width: fit-content;
     margin: auto;

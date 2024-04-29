@@ -111,6 +111,9 @@ io.on('connection', (socket) => {
     // Display connection
     if(socket.handshake.headers.referer.split('/')[3].substring(0,7) == "display"){
 
+        socket.on('createTeams', colorList => {
+            console.log(colorList);
+        })
 
         log("Display Connected");
         socket.join("display");
