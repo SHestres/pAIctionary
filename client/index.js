@@ -27,6 +27,18 @@ app.get('/', (req, res) => {
 
 var players = {};
 var generatorConnected = false;
+var teams = [];
+
+
+var gameStates = {
+    CREATE_TEAMS: "CREATE_TEAMS",
+    PLAYERS_JOIN: "PLAYERS_JOIN",
+    PRE_TURN: "PRE_TURN",
+    TURN: "TURN",
+    POST_TURN: "POST_TURN",
+};
+
+var gameState = gameStates.CREATE_TEAMS;
 
 // Check cookies during handshake
 io.engine.on("initial_headers", (headers, request) => {
@@ -103,6 +115,7 @@ io.on('connection', (socket) => {
         socket.join("manager");
         updateManagerPlayers();
         updateManagerGenerator();
+        updateManagerTeams();
         
         // Don't do player setup
         return;
@@ -113,6 +126,17 @@ io.on('connection', (socket) => {
 
         socket.on('createTeams', colorList => {
             console.log(colorList);
+            teams = [];
+            for(let i = 0; i < colorList.length; i++){
+                teams[i] = {color: colorList[i], players: []};
+            }
+            gameState = gameStates.PLAYERS_JOIN;
+            log("Color List: " + colorList.toString());
+            updateManagerTeams();
+        })
+
+        socket.on('getGameState', statCB => {
+            statCB(gameState);
         })
 
         log("Display Connected");
@@ -223,6 +247,10 @@ const log = (entry) => {
 
 const updateManagerPlayers = () => {
     io.to("manager").emit("playersUpdate", players);
+}
+
+const updateManagerTeams = () => {
+    io.to("manager").emit("teamsUpdate", teams);
 }
 
 const updateManagerGenerator = () => {

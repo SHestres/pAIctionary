@@ -7,7 +7,23 @@ const socket = io();
 
 var gameScreen = document.querySelector('.gameScreen');
 var teamCreateScreen = document.querySelector('.teamCreateScreen');
-gameScreen.classList.add('hide');
+
+socket.emit('getGameState', (status) => {
+    console.log("GameState: " + status);
+    switch (status){
+        case "CREATE_TEAMS":
+            gameScreen.classList.add('hide');
+        break;
+        case "PLAYERS_JOIN":
+            console.log("goToJoinScreen");
+            freshLoadGameScreen();
+        break;
+        default:
+            freshLoadGameScreen();
+        break;
+    }
+});
+
 
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
@@ -100,6 +116,10 @@ async function setTimer(time){
     document.querySelector('.hourglass').classList.remove('hgAnim')
     document.querySelector('.fill').classList.remove('fAnim')
     document.querySelector('.glare').classList.remove('gAnim')
+}
+
+function freshLoadGameScreen(){
+    teamCreateScreen.remove();
 }
 
 function submitTeams(){

@@ -12,6 +12,13 @@ socket.on("log", text => {
     document.querySelector('ul').appendChild(el);
 })
 
+socket.on("teamsUpdate", players => {
+    console.log("teams update");
+    const el = document.createElement('pre');
+    el.innerHTML = JSON.stringify(players,null,2);
+    document.querySelector(".teamStat").innerHTML = JSON.stringify(players,null,2);
+})
+
 socket.on("playersUpdate", players => {
     console.log("players update");
     const el = document.createElement('pre');
