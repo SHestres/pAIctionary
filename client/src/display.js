@@ -63,6 +63,7 @@ const setColorSelectionActions = () => {
 setColorSelectionActions();
 
 function increaseNumTeams(event){
+    if(numberOfTeams >= 6) return;
     numberOfTeams++;
     document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
     addColorSelector();
