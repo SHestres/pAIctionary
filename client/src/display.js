@@ -7,23 +7,35 @@ const socket = io();
 
 var gameScreen = document.querySelector('.gameScreen');
 var teamCreateScreen = document.querySelector('.teamCreateScreen');
+var joinScreen = document.querySelector('.joinScreen');
 
 socket.emit('getGameState', (status) => {
     console.log("GameState: " + status);
     switch (status){
         case "CREATE_TEAMS":
             gameScreen.classList.add('hide');
-        break;
+            joinScreen.classList.add('hide');
+            break;
         case "PLAYERS_JOIN":
-            console.log("goToJoinScreen");
-            freshLoadGameScreen();
-        break;
+            freshLoadJoinScreen();
+            break;
         default:
             freshLoadGameScreen();
-        break;
+            break;
     }
 });
 
+socket.on('startGame', () => {
+    loadGameScreen();
+})
+
+socket.on('addPlayer', (teamInd, name) => {
+    let newName = document.createElement('div');
+    newName.classList.add('playerName');
+    newName.classList.add('slide-in-bck-center');
+    newName.innerHTML = name;
+    Array.from(document.querySelector('.teamLists').children)[teamInd].appendChild(newName)
+})
 
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
@@ -123,8 +135,50 @@ function freshLoadGameScreen(){
     teamCreateScreen.remove();
 }
 
+function loadGameScreen(){
+    joinScreen.classList.add('hide');
+    gameScreen.classList.remove('hide');
+}
+
 function submitTeams(){
     socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
-    teamCreateScreen.remove()
-    gameScreen.classList.remove('hide');
+    loadJoinScreen();
+}
+
+function loadJoinScreen(){
+    teamCreateScreen.classList.add('hide');
+    joinScreen.classList.remove('hide');
+    for(let i = 0; i < numberOfTeams; i++){
+        let newDiv = document.createElement('div');
+        newDiv.classList.add('teamList');
+        newDiv.style.backgroundColor = teamColors[i];
+        document.querySelector('.teamLists').appendChild(newDiv)
+    }
+    socket.emit('getPlayers', (players) => {
+        let teams = Array.from(document.querySelector('.teamLists').children);
+        for(let i = 0; i < numberOfTeams; i++){
+            for(let j = 0; j < players[i].length; j++){
+                let p = document.createElement('div');
+                p.classList.add('playerName');
+                p.innerHTML = players[i][j];
+                teams[i].appendChild(p);
+            }
+        }
+
+    })
+}
+
+function freshLoadJoinScreen(){
+    gameScreen.classList.add('hide');
+    socket.emit('getTeamColors', (colorList) => {
+        console.log(colorList);
+        teamColors = colorList;
+        numberOfTeams = teamColors.length;
+        loadJoinScreen();
+    })
+}
+
+
+function testFunction(){
+    loadGameScreen();
 }

@@ -3,6 +3,10 @@
     --teamColor: /*#255ff4*/ #ff2626; 
 }
 
+.hide {
+    display: none !important;
+}
+
 .gameScreen {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -15,6 +19,7 @@ body {
     animation-duration: 500s;
     animation-iteration-count: infinite;
     animation-timing-function: ease-in-out;
+    min-height: calc(100vh - 16px)
 }
 
 @keyframes bgScroll{
@@ -41,7 +46,7 @@ body {
     padding: 15px;
     background-color: white;
     color: var(--teamColor);
-    font-size: 5vh;
+    font-size: 4vh;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: bold;
     border-radius: 20px 20px 0 0;

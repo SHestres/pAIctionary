@@ -139,6 +139,14 @@ io.on('connection', (socket) => {
             statCB(gameState);
         })
 
+        socket.on('getTeamColors', cb => {
+            cb(teams.map(t => t.color))
+        })
+
+        socket.on('getPlayers', cb => {
+            cb(teams.map(t => t.players))
+        })
+
         log("Display Connected");
         socket.join("display");
         return;
@@ -192,22 +200,36 @@ io.on('connection', (socket) => {
         socket.emit('redirect', '/join');
     })
 
-    // Handle player initialization event (player should be valid at this point)
-    socket.on('user', (user) => {
+    // Handle player join event (player should be valid at this point)
+    socket.on('user', (user, teamInd, cb) => {
         // Assign player name
         players[socket.data.id].user = user;
         log('Added player name ' + user + " to id " + socket.data.id);
         updateManagerPlayers()
 
+        // Assign player to team
+        teams[teamInd].players.push(user)
+
         // Mark player initialized
         players[socket.data.id].initialized = true;
         updateManagerPlayers()
 
+        // Send player to Display
+        io.to('display').emit('addPlayer', teamInd, user);
+
         // Redirect to play screen
-        socket.emit("redirect", "/play");
+        //socket.emit("redirect", "/play");
+
+        //Confirm receipt and allow redirect to play screen
+        cb();
     })
 
     // Events for player sockets
+
+    // Join screen getting teams
+    socket.on('getTeamColors', cb => {
+        cb(teams.map(t => t.color))
+    })
 
     // Relay recieved messages
     socket.on('prompt', (prompt) => {
