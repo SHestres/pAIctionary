@@ -19,6 +19,9 @@ socket.emit('getGameState', (status) => {
         case "PLAYERS_JOIN":
             freshLoadJoinScreen();
             break;
+        case "PRE_TURN":
+            freshLoadGameScreen();
+            break;
         default:
             freshLoadGameScreen();
             break;
@@ -133,8 +136,14 @@ async function setTimer(time){
     document.querySelector('.glare').classList.remove('gAnim')
 }
 
+function startGame() {
+    socket.emit('startGame');
+    loadGameScreen();
+}
+
 function freshLoadGameScreen(){
-    teamCreateScreen.remove();
+    teamCreateScreen.classList.add('hide');
+    loadGameScreen();
 }
 
 function loadGameScreen(){

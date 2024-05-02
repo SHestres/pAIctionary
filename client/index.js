@@ -147,6 +147,10 @@ io.on('connection', (socket) => {
             cb(teams.map(t => t.players))
         })
 
+        socket.on('startGame', () => {
+            gameState = gameStates.PRE_TURN;
+        })
+
         log("Display Connected");
         socket.join("display");
         return;
