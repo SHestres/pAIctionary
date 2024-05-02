@@ -40,9 +40,11 @@ socket.on('addPlayer', (teamInd, name) => {
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
 document.querySelector('.timerButton').onclick = () => {setTimer(30)}
+
 document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
 document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
 document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
+document.querySelector('.startGameButton').onclick = loadGameScreen;
 
 document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
 
