@@ -43,11 +43,12 @@ socket.on('addPlayer', (teamInd, name) => {
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
 document.querySelector('.timerButton').onclick = () => {setTimer(30)}
+document.querySelector('.countdownButton').onclick = () => {startCountdown()};
 
 document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
 document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
 document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
-document.querySelector('.startGameButton').onclick = loadGameScreen;
+document.querySelector('.startGameButton').onclick = startGame;
 
 document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
 
@@ -149,6 +150,8 @@ function freshLoadGameScreen(){
 function loadGameScreen(){
     joinScreen.classList.add('hide');
     gameScreen.classList.remove('hide');
+
+    document.querySelector('.imageImage').setAttribute('src', '/img/ready_to_guess_2.jpg');
 }
 
 function submitTeams(){
@@ -189,7 +192,25 @@ function freshLoadJoinScreen(){
     })
 }
 
-
-function testFunction(){
-    loadGameScreen();
+async function startCountdown(){
+    document.querySelector('.imageImage').setAttribute('src', "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=");
+    cd = document.querySelector('.countdownNumber');
+    cd.innerHTML = "3";
+    cd.classList.add('scale-out-center');
+    console.log("Before");
+    await sleep(900);
+    console.log("After")
+    cd.classList.remove('scale-out-center');
+    cd.innerHTML = "2";
+    await sleep(100);
+    cd.classList.add('scale-out-center');
+    await sleep(900);
+    cd.classList.remove('scale-out-center');
+    cd.innerHTML = "1";
+    await sleep(100);
+    cd.classList.add('scale-out-center');
+    await sleep(1000);
+    cd.classList.remove('scale-out-center');
+    cd.innerHTML = "";
+    console.log("End of cd");
 }

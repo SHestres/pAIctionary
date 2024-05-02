@@ -6,6 +6,7 @@
     <title>Document</title>
     <script src="/socket.io/socket.io.js"></script>
     <script defer src="/src/display.js"></script>
+    <script src="/src/helper.js"></script>
     <link rel="stylesheet" href="/css/display.css">
     <link rel="stylesheet" href="/css/hourglass.css">
     <link rel="stylesheet" href="/css/teamMaker.css">
@@ -60,7 +61,11 @@
                 </div>
             </div>
             <button class="timerButton">Set Timer</button>
+            <button class="countdownButton">Start Countdown</button>
         </div>
+    </div>
+    <div class="countdown">
+        <div class="countdownNumber"></div>
     </div>
 </body>
 </html>
