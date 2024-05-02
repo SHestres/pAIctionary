@@ -144,7 +144,7 @@ io.on('connection', (socket) => {
         })
 
         socket.on('getPlayers', cb => {
-            cb(teams.map(t => t.players))
+            cb(teams.map(t => t.players.map(id => players[id].user)))
         })
 
         socket.on('startGame', () => {
@@ -212,7 +212,7 @@ io.on('connection', (socket) => {
         updateManagerPlayers()
 
         // Assign player to team
-        teams[teamInd].players.push(user)
+        teams[teamInd].players.push(socket.data.id)
 
         // Mark player initialized
         players[socket.data.id].initialized = true;
