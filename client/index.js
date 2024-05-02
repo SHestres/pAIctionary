@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
     res.redirect('/join')
 })
 
+var startTime = Date.now();
 
 var players = {};
 var generatorConnected = false;
@@ -164,11 +165,12 @@ io.on('connection', (socket) => {
         log("Player has gameSessionData cookie " + JSON.stringify(cook.gameSessionData));
         // Set socket id
         let id = cook.gameSessionData.split('|')[0];
+        let timeStamp = cook.gameSessionData.split('|')[1];
         socket.data.id = id;
         
 
         // If id from cookie is valid
-        if(Object.keys(players).includes(socket.data.id)){
+        if(Object.keys(players).includes(socket.data.id) && timeStamp >= startTime){
             log("gameSessionData is valid");
             // Check initialization
             if(players[id].initialized){
