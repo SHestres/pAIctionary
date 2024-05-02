@@ -176,6 +176,7 @@ io.on('connection', (socket) => {
                 log("Player connected")
                 if(socket.handshake.headers.referer.split('/')[3].substring(0,4) != "join"){
                     players[socket.data.id].connected = true
+                    players[socket.data.id].emit = (...args) => socket.emit(...args);
                     updateManagerPlayers();
                 }
                 socket.emit('allowRejoin'); //Only handled by join screen
