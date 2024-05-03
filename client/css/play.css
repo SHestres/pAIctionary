@@ -1,3 +1,37 @@
 .hide {
     display: none !important;
 }
+
+.wordsSection {
+    display: flex;
+}
+
+.skipButton{
+    background-color: red;
+    flex: 1;
+}
+
+.wordWrapper {
+    display: flex;
+}
+
+.word{
+    padding: 5vh;
+}
+
+.submitButton {
+    flex: 1;
+}
+
+.shrink-out{
+    animation: shrink-out-anim 0.2s ease-in both;
+}
+
+@keyframes shrink-out-anim{
+    from {
+        transform: scaleY(1);
+    }
+    to{
+        transform: scaleY(0);
+    }
+}

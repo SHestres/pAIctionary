@@ -4,6 +4,8 @@ var waitingPrompt = "";
 var infoText = document.querySelector('.infoText');
 var promptInput = document.querySelector('.promptInput');
 var readyButton = document.querySelector('.readyToDrawButton');
+var wordsList = document.querySelector('.wordsList');
+var wordsSection = document.querySelector('.wordsSection');
 
 var playerState = "";
 var gameState = "";
@@ -77,6 +79,23 @@ const readyVis = {
     }
 }
 
+const wordsVis = {
+    CREATE_TEAMS: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PLAYERS_JOIN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PRE_TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    TURN: {
+        NONE: false, DRAW: true, GUESS: false, WAIT: false
+    },
+    POST_TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    }
+}
 infoText.innerHTML = defaultMsg;
 promptInput.classList.add('hide');
 readyButton.classList.add('hide');
@@ -164,6 +183,11 @@ socket.on('youWait', () => {
 socket.on('startRound', () => {
     console.log('Starting round');
     gameState = "TURN";
+    socket.emit('getWords', 3, words => {
+        words.forEach(w => {
+            addWord(w);
+        });
+    })
     drawScreen();
 })
 
@@ -171,6 +195,7 @@ function drawScreen(){
     setInfoText();
     setElVis(readyButton, readyVis[gameState][playerState])
     setElVis(promptInput, inputVis[gameState][playerState])
+    setElVis(wordsSection, wordsVis[gameState][playerState])
 }
 
 function setInfoText(){
@@ -198,6 +223,33 @@ function setElVis(element, visible){
         catch{}
     }
 }
+
+function addWord(wordText){
+    let wrap = document.createElement('div');
+    wrap.classList.add('wordWrapper');
+    let word = document.createElement('div');
+    word.innerHTML = wordText;
+    wrap.appendChild(word);
+    let submit = document.createElement('button');
+    submit.innerHTML = "Guessed!";
+    submit.classList.add('submitButton');
+    submit.onclick = async () => {
+        socket.emit('submitWord', wordText, getCurrentPrompt())
+        wrap.classList.add('shrink-out');
+        await sleep(200);
+        wrap.remove();
+        socket.emit('getWords', 1, word => {
+            addWord(word);
+        })
+    }
+    wrap.appendChild(submit);
+    wordsList.appendChild(wrap);
+}
+
+function getCurrentPrompt(){
+    return promptInput.value;
+}
+
 /*
 socket.on('startRound', () => {
     switch (playerState){

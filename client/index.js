@@ -1,6 +1,7 @@
 const express = require('express');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const picWords = require('word-pictionary-list')
 const cookie = require('cookie')
 
 const app = express();
@@ -31,6 +32,7 @@ var generatorConnected = false;
 var teams = [];
 var turnCount = 0;
 var roundLength = 30;
+var turnSubmittedWords = [];
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -179,6 +181,7 @@ io.on('connection', (socket) => {
         socket.data.id = id;
         
 
+        const picWords = require('word-pictionary-list')
         // If id from cookie is valid
         if(Object.keys(players).includes(socket.data.id) && timeStamp >= startTime){
             log("gameSessionData is valid");
@@ -241,11 +244,20 @@ io.on('connection', (socket) => {
         cb();
     })
 
-    // Events for player sockets
+    // Player socket events
 
     // Join screen getting teams
     socket.on('getTeamColors', cb => {
         cb(teams.map(t => t.color))
+    })
+
+    socket.on('getWords', (num, cb) => {
+        cb(picWords(num));
+    })
+
+    socket.on('submitWord', (word, promptText) => {
+        log('Word guessed: ' + word + " prompt: " + promptText)
+        turnSubmittedWords.push({word: word, prompt: promptText})
     })
 
     socket.on('getPlayerAndGameStates', (cb) => {
