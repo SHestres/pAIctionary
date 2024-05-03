@@ -37,7 +37,7 @@ socket.on('image', image => {
     if(waitingPrompt != lastPrompt) promptServer(waitingPrompt);
 
     // Update image on player page
-    document.querySelector('.imgResult').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`
+    //document.querySelector('.imgResult').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`;
     socket.emit('finishedImage')
 });
 

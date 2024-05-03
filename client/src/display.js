@@ -45,6 +45,11 @@ socket.on('PRE_TURN', (guessers, drawer, col) => {
     preTurn(guessers, drawer, col);
 })
 
+socket.on('image', image => {
+    console.log('recieved image');
+    document.querySelector('.imageImage').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`;
+})
+
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
 document.querySelector('.timerButton').onclick = () => {setTimer(30)}

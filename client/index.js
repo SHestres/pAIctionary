@@ -258,7 +258,7 @@ io.on('connection', (socket) => {
         io.to("generator").emit("prompt", prompt);
 
         // Relay that message to all connections with io.emit()
-        io.emit('message', `${players[socket.data.id].user} prompted ${prompt}`);
+        //io.emit('message', `${players[socket.data.id].user} prompted ${prompt}`);
     });
 
     socket.on('finishedImage', () => {
