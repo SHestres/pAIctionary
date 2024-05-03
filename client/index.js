@@ -131,7 +131,6 @@ io.on('connection', (socket) => {
     if(socket.handshake.headers.referer.split('/')[3].substring(0,7) == "display"){
 
         socket.on('createTeams', colorList => {
-            console.log(colorList);
             teams = [];
             for(let i = 0; i < colorList.length; i++){
                 teams[i] = {color: colorList[i], players: []};
@@ -248,6 +247,43 @@ io.on('connection', (socket) => {
         cb(teams.map(t => t.color))
     })
 
+    socket.on('getPlayerAndGameStates', (cb) => {
+        let pState = "NONE";
+        if(gameState == gameStates.CREATE_TEAMS || gameState == gameStates.PLAYERS_JOIN) 
+            {pState = "NONE"}
+        else{
+            let {teamInd, playerInd, drawerID} = getTurnPlayerInds();
+            if(teamInd < 0 || drawerID < 0){
+                pState = "NONE";
+            }
+            else{
+                if(socket.data.id == drawerID){
+                    pState = "DRAW";
+                }
+                else if(teams[teamInd].players.includes(socket.data.id)){
+                    pState = "GUESS";
+                }
+                else{
+                    let allPlayers = []
+                    teams.forEach(t => {
+                        t.players.forEach(p => {
+                            allPlayers.push(p)
+                        })
+                    })
+                    console.log('All players');
+                    console.log(allPlayers)
+                    if(allPlayers.includes(socket.data.id)){
+                        pState = "WAIT";
+                    }
+                    else{
+                        pState = "Player Not Found";
+                    }
+                }
+            }
+        }
+        cb(gameState, pState);
+    })
+
     // Relay recieved messages
     socket.on('prompt', (prompt) => {
         // Likely unneeded TODO: find out
@@ -297,9 +333,11 @@ const updateManagerGenerator = () => {
 }
 
 function startPreturn (displayOnly = false){
-    let teamInd = turnCount % teams.length;
+    /*let teamInd = turnCount % teams.length;
     let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
     let drawerID = teams[teamInd].players[playerInd]
+    */
+    let {teamInd, playerInd, drawerID} = getTurnPlayerInds();
     if(!displayOnly) players[drawerID].emit('youDraw')
     let guessers = [];
 
@@ -326,11 +364,13 @@ function startPreturn (displayOnly = false){
         teams[teamInd].color)
 }
 
-function getDrawerId(){
+function getTurnPlayerInds(){
+    if(teams.length == 0) return {"teamInd": -1, "playerInd": -1, "drawerID": -1}
     let teamInd = turnCount % teams.length;
     let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
+    
     let drawerID = teams[teamInd].players[playerInd]
-    return drawerID;
+    return {"teamInd": teamInd, "playerInd": playerInd, "drawerID": drawerID};
 }
 
 // Can't use app.listen, it will create a new httpserver

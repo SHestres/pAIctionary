@@ -5,10 +5,34 @@ var infoText = document.querySelector('.infoText');
 var promptInput = document.querySelector('.promptInput');
 var readyButton = document.querySelector('.readyToDrawButton');
 
+var playerState = "";
+var gameState = "";
+
 const defaultMsg = "Wait for the game to Start!";
-const drawerMsg = "You are Drawing! \nAre you ready?";
-const guesserMsg = "Your team is drawing this round! Get ready to guess!";
-const waiterMsg = "Your team isn't up this round! Dont' give away your thoughts to your opponents!";
+const pMsg = {
+    CREATE_TEAMS: {
+        get: () => defaultMsg
+    },
+    PLAYERS_JOIN: {
+        get: () => defaultMsg
+    },
+    PRE_TURN: {
+        DRAW: "You are Drawing! \nAre you ready?",
+        GUESS: "Your team is drawing this round! Get ready to guess!",
+        WAIT: "Your team isn't up this round! Dont' give away your thoughts to your opponents!",
+    },
+    TURN: {
+        DRAW: "Text TBD",
+        GUESS: "Guess!",
+        WAIT: "Don't guess!"
+    },
+    POST_TURN: {
+        NONE: "Phrase TBD",
+        DRAW: "Phrase TBD",
+        GUESS: "Phrase TBD",
+        WAIT: "Phrase TBD"
+    }
+}
 
 infoText.innerHTML = defaultMsg;
 promptInput.classList.add('hide');
@@ -64,43 +88,69 @@ const playerStates = {
     GUESS: "GUESS",
     WAIT: "WAIT"
 }
-var playerState = ""
 
-socket.emit('getPlayerStates', state => {
-    switch (state){
+socket.emit('getPlayerAndGameStates', (gState, pState) => {
+    console.log('Player and Game State: (' + pState + ", " + gState + ")")
+    playerState = pState;
+    gameState = gState;
+    let txt = "";
+    try{
+        txt = pMsg[gState][pState];
+    }
+    catch{
+        txt = "Invalid game or player state: (" + gState + ", " + pState + ")";
+    }
+    infoText.innerHTML = txt;
+});
+
+socket.on('youDraw', () => {
+    console.log("You're drawing");
+    drawPreTurn();
+})
+
+function drawPreTurn(){
+    playerState = playerStates.DRAW;
+    infoText.innerHTML = pMsg.PRE_TURN.DRAW;
+    readyButton.classList.remove('hide');
+}
+
+socket.on('youGuess', () => {
+    console.log("You're guessing");
+    guessPreTurn();
+});
+
+function guessPreTurn(){
+    playerState = playerStates.GUESS;
+    infoText.innerHTML = pMsg.PRE_TURN.GUESS;
+}
+
+socket.on('youWait', () => {
+    console.log("You're waiting")
+    waitPreTurn();
+})
+
+function waitPreTurn(){
+    playerState = playerStates.WAIT;
+    infoText.innerHTML = pMsg.PRE_TURN.WAIT;
+}
+/*
+socket.on('startRound', () => {
+    switch (playerState){
         case playerStates.NONE:
-            infoText.innerHTML = defaultMsg;
+
             break;
         case playerStates.DRAW:
-            infoText.innerHTML = drawerMsg;
+            infoText.innerHTML = drawerPreTurnMsg;
             break;
         case playerStates.GUESS:
-            infoText.innerHTML = guesserMsg;
+            infoText.innerHTML = guesserPreTurnMsg;
             break;
         case playerStates.WAIT:
-            infoText.innerHTML = waiterMsg;
+            infoText.innerHTML = waiterPreTurnMsg;
             break;
         default:
             console.error('Invalid player state sent by server')
             break;
     }
-})
-
-socket.on('youDraw', () => {
-    playerState = playerStates.DRAW;
-    infoText.innerHTML = drawerMsg;
-    readyButton.classList.remove('hide');
-    console.log("You're drawing");
-})
-
-socket.on('youGuess', () => {
-    playerState = playerStates.GUESS;
-    infoText.innerHTML = guesserMsg;
-    console.log("You're guessing");
 });
-
-socket.on('youWait', () => {
-    playerState = playerStates.WAIT;
-    infoText.innerHTML = waiterMsg;
-    console.log("You're waiting")
-})
+*/
