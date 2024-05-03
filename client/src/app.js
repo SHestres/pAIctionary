@@ -6,6 +6,8 @@ var promptInput = document.querySelector('.promptInput');
 var readyButton = document.querySelector('.readyToDrawButton');
 var wordsList = document.querySelector('.wordsList');
 var wordsSection = document.querySelector('.wordsSection');
+var skipButton = document.querySelector('.skipButton')
+var skipButtonWrapper = document.querySelector('.skipButtonWrapper');
 
 var playerState = "";
 var gameState = "";
@@ -31,7 +33,7 @@ const pMsg = {
         WAIT: "Your team isn't up this round! Dont' give away your thoughts to your opponents!",
     },
     TURN: {
-        DRAW: "Text TBD",
+        DRAW: "Start typing and your generated images will display on the tv!",
         GUESS: "Guess!",
         WAIT: "Don't guess!"
     },
@@ -107,6 +109,15 @@ promptInput.oninput = (e) => {
 readyButton.onclick = (e) => {
     socket.emit('drawerReady');
     e.target.classList.add('hide');
+}
+
+skipButtonWrapper.onclick = () => {
+    wordsList.innerHTML = null;
+    socket.emit('skipWords', () => {
+        socket.emit('getWords', words => {
+            words.forEach(w => addWord(w));
+        });
+    });
 }
 
 function promptServer(prompt){
@@ -231,6 +242,7 @@ function addWord(wordText){
     wrap.classList.add('wordWrapper');
     let word = document.createElement('div');
     word.innerHTML = wordText;
+    word.classList.add('word');
     wrap.appendChild(word);
     let submit = document.createElement('button');
     submit.innerHTML = "Guessed!";

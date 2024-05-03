@@ -34,6 +34,7 @@ var turnCount = 0;
 var roundLength = 30;
 var turnSubmittedWords = [];
 var currentWords = [];
+var turnSkippedWords = [];
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -165,6 +166,8 @@ io.on('connection', (socket) => {
             startPreturn(displayOnly = true)
         })
 
+        
+
         log("Display Connected");
         socket.join("display");
         return;
@@ -273,6 +276,12 @@ io.on('connection', (socket) => {
         try{
         currentWords.splice(currentWords.indexOf(word), 1);
         } catch {}
+    })
+    
+    socket.on('skipWords', cb => {
+        currentWords.forEach(w => turnSkippedWords.push(w));
+        currentWords = picWords(3);
+        cb();
     })
 
     socket.on('getPlayerAndGameStates', (cb) => {
