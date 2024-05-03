@@ -32,4 +32,9 @@ socket.on("generator", (status) => {
     statDisplay.style.color = status ? "#00FF00" : "#FF0000";
 })
 
+document.querySelector('.testButton').onclick = sendTest;
+function sendTest(){
+    socket.emit('sendTest')
+}
+
 //socket.on()

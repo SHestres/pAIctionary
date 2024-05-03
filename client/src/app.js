@@ -40,3 +40,15 @@ socket.on('image', image => {
     document.querySelector('.imgResult').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`
     socket.emit('finishedImage')
 });
+
+socket.on('youDraw', () => {
+    console.log("You're drawing");
+})
+
+socket.on('youGuess', () => {
+    console.log("You're guessing");
+});
+
+socket.on('youWait', () => {
+    console.log("You're waiting")
+})

@@ -29,7 +29,7 @@ var startTime = Date.now();
 var players = {};
 var generatorConnected = false;
 var teams = [];
-
+var turnCount = 0;
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -111,6 +111,10 @@ io.on('connection', (socket) => {
         socket.on('disconnect', (reason) => {
             log('### Manager disconnected');
         })
+
+        socket.on('sendTest', () => {
+            startPreturn();
+        });
 
         log("### Manager connected");
         socket.join("manager");
@@ -284,6 +288,41 @@ const updateManagerTeams = () => {
 
 const updateManagerGenerator = () => {
     io.to("manager").emit("generator", generatorConnected);
+}
+
+function startPreturn (){
+    let teamInd = turnCount % teams.length;
+    let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
+    let drawerID = teams[teamInd].players[playerInd]
+    players[drawerID].emit('youDraw')
+    let guessers = [];
+
+    for(let t = 0; t < teams.length; t++){
+        if(t == teamInd){
+            let teamSize = teams[t].players.length;
+            for(let i = 0; i < teamSize; i++){
+                let pID = teams[t].players[i];
+                if(pID != drawerID) players[pID].emit('youGuess');
+            }
+            for(let k = 1; k < teamSize; k++){
+                guessers.push(teams[t].players[(k + playerInd) % teamSize])
+            }
+        }
+        else{
+            for(let i = 0; i < teams[t].players.length; i++){
+                players[teams[t].players[i]].emit('youWait');
+            }
+        }
+    }
+    //Temporary
+    turnCount++;
+}
+
+function getDrawerId(){
+    let teamInd = turnCount % teams.length;
+    let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
+    let drawerID = teams[teamInd].players[playerInd]
+    return drawerID;
 }
 
 // Can't use app.listen, it will create a new httpserver
