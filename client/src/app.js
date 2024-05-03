@@ -11,10 +11,17 @@ var gameState = "";
 const defaultMsg = "Wait for the game to Start!";
 const pMsg = {
     CREATE_TEAMS: {
-        get: () => defaultMsg
+        // TODO: Have to explicitely define all pStates to have defaultMsg
+        NONE: defaultMsg,
+        DRAW: defaultMsg,
+        GUESS: defaultMsg,
+        WAIT: defaultMsg
     },
     PLAYERS_JOIN: {
-        get: () => defaultMsg
+        NONE: defaultMsg,
+        DRAW: defaultMsg,
+        GUESS: defaultMsg,
+        WAIT: defaultMsg
     },
     PRE_TURN: {
         DRAW: "You are Drawing! \nAre you ready?",
@@ -34,9 +41,46 @@ const pMsg = {
     }
 }
 
+const inputVis = {
+    CREATE_TEAMS: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PLAYERS_JOIN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PRE_TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    TURN: {
+        NONE: false, DRAW: true, GUESS: false, WAIT: false
+    },
+    POST_TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    }
+}
+
+const readyVis = {
+    CREATE_TEAMS: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PLAYERS_JOIN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    PRE_TURN: {
+        NONE: false, DRAW: true, GUESS: false, WAIT: false
+    },
+    TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    },
+    POST_TURN: {
+        NONE: false, DRAW: false, GUESS: false, WAIT: false
+    }
+}
+
 infoText.innerHTML = defaultMsg;
 promptInput.classList.add('hide');
 readyButton.classList.add('hide');
+readyButton.onclick = () => {socket.emit('drawerReady')}
 
 promptInput.oninput = (e) => {
     promptServer(e.target.value)
@@ -93,45 +137,59 @@ socket.emit('getPlayerAndGameStates', (gState, pState) => {
     console.log('Player and Game State: (' + pState + ", " + gState + ")")
     playerState = pState;
     gameState = gState;
+    drawScreen();
+});
+
+socket.on('youDraw', () => {
+    console.log("You're drawing");
+    playerState = "DRAW";
+    gameState = "PRE_TURN";
+    drawScreen();
+})
+
+socket.on('youGuess', () => {
+    console.log("You're guessing");
+    playerState = "GUESS";
+    gameState = "PRE_TURN";
+    drawScreen();
+});
+
+socket.on('youWait', () => {
+    console.log("You're waiting")
+    playerState = "WAIT";
+    gameState = "PRE_TURN";
+    drawScreen();
+})
+
+function drawScreen(){
+    setInfoText();
+    setElVis(readyButton, readyVis[gameState][playerState])
+}
+
+function setInfoText(){
     let txt = "";
     try{
-        txt = pMsg[gState][pState];
+        txt = pMsg[gameState][playerState];
     }
     catch{
         txt = "Invalid game or player state: (" + gState + ", " + pState + ")";
     }
     infoText.innerHTML = txt;
-});
-
-socket.on('youDraw', () => {
-    console.log("You're drawing");
-    drawPreTurn();
-})
-
-function drawPreTurn(){
-    playerState = playerStates.DRAW;
-    infoText.innerHTML = pMsg.PRE_TURN.DRAW;
-    readyButton.classList.remove('hide');
 }
 
-socket.on('youGuess', () => {
-    console.log("You're guessing");
-    guessPreTurn();
-});
-
-function guessPreTurn(){
-    playerState = playerStates.GUESS;
-    infoText.innerHTML = pMsg.PRE_TURN.GUESS;
-}
-
-socket.on('youWait', () => {
-    console.log("You're waiting")
-    waitPreTurn();
-})
-
-function waitPreTurn(){
-    playerState = playerStates.WAIT;
-    infoText.innerHTML = pMsg.PRE_TURN.WAIT;
+function setElVis(element, visible){
+    if(visible){
+        try {
+            element.classList.remove('hide');
+        }
+        catch {}
+    }
+    else{
+        try {
+            element.classList.add('hide');
+        }
+        catch{}
+    }
 }
 /*
 socket.on('startRound', () => {
