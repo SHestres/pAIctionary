@@ -113,6 +113,7 @@ io.on('connection', (socket) => {
         })
 
         socket.on('sendTest', () => {
+            turnCount++;
             startPreturn();
         });
 
@@ -154,6 +155,11 @@ io.on('connection', (socket) => {
 
         socket.on('startGame', () => {
             gameState = gameStates.PRE_TURN;
+            startPreturn();
+        })
+
+        socket.on('getPreTurn', () => {
+            startPreturn(displayOnly = true)
         })
 
         log("Display Connected");
@@ -290,11 +296,11 @@ const updateManagerGenerator = () => {
     io.to("manager").emit("generator", generatorConnected);
 }
 
-function startPreturn (){
+function startPreturn (displayOnly = false){
     let teamInd = turnCount % teams.length;
     let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
     let drawerID = teams[teamInd].players[playerInd]
-    players[drawerID].emit('youDraw')
+    if(!displayOnly) players[drawerID].emit('youDraw')
     let guessers = [];
 
     for(let t = 0; t < teams.length; t++){
@@ -302,7 +308,7 @@ function startPreturn (){
             let teamSize = teams[t].players.length;
             for(let i = 0; i < teamSize; i++){
                 let pID = teams[t].players[i];
-                if(pID != drawerID) players[pID].emit('youGuess');
+                if(!displayOnly) if(pID != drawerID) players[pID].emit('youGuess');
             }
             for(let k = 1; k < teamSize; k++){
                 guessers.push(teams[t].players[(k + playerInd) % teamSize])
@@ -310,12 +316,14 @@ function startPreturn (){
         }
         else{
             for(let i = 0; i < teams[t].players.length; i++){
-                players[teams[t].players[i]].emit('youWait');
+                if(!displayOnly) players[teams[t].players[i]].emit('youWait');
             }
         }
     }
-    //Temporary
-    turnCount++;
+    io.to('display').emit('PRE_TURN', 
+        guessers.map(g => players[g].user),
+        players[drawerID].user,
+        teams[teamInd].color)
 }
 
 function getDrawerId(){

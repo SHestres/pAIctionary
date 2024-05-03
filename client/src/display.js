@@ -20,7 +20,8 @@ socket.emit('getGameState', (status) => {
             freshLoadJoinScreen();
             break;
         case "PRE_TURN":
-            freshLoadGameScreen();
+            teamCreateScreen.classList.add('hide');
+            socket.emit('getPreTurn'); 
             break;
         default:
             freshLoadGameScreen();
@@ -38,6 +39,10 @@ socket.on('addPlayer', (teamInd, name) => {
     newName.classList.add('slide-in-bck-center');
     newName.innerHTML = name;
     Array.from(document.querySelector('.teamLists').children)[teamInd].appendChild(newName)
+})
+
+socket.on('PRE_TURN', (guessers, drawer, col) => {
+    preTurn(guessers, drawer, col);
 })
 
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
@@ -143,7 +148,6 @@ function startGame() {
 }
 
 function freshLoadGameScreen(){
-    teamCreateScreen.classList.add('hide');
     loadGameScreen();
 }
 
@@ -152,6 +156,26 @@ function loadGameScreen(){
     gameScreen.classList.remove('hide');
 
     document.querySelector('.imageImage').setAttribute('src', '/img/ready_to_guess_2.jpg');
+}
+
+function preTurn(guessers, drawer, col){
+    //Change screen
+    loadGameScreen();
+
+    //Set color
+    setColor(col);
+
+    //Display guessers
+    var guessList = document.querySelector('.guessersNamesList');
+    guessList.innerHTML = null;
+    guessers.forEach(g => {
+        let newName = document.createElement('div');
+        newName.innerHTML = g;
+        guessList.appendChild(newName)
+    })
+
+    //Display Drawer
+    document.querySelector('.drawerName').innerHTML = drawer + " is Drawing";
 }
 
 function submitTeams(){
