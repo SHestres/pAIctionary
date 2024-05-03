@@ -50,6 +50,14 @@ socket.on('image', image => {
     document.querySelector('.imageImage').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`;
 })
 
+socket.on('startCountdown', () => {
+    startCountdown();
+});
+
+socket.on('startRound', (roundLength) => {
+    setTimer(roundLength);
+})
+
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
 document.querySelector('.redButton').onclick = () => {setColor(red)}
 document.querySelector('.timerButton').onclick = () => {setTimer(30)}

@@ -80,14 +80,14 @@ const readyVis = {
 infoText.innerHTML = defaultMsg;
 promptInput.classList.add('hide');
 readyButton.classList.add('hide');
-readyButton.onclick = () => {socket.emit('drawerReady')}
 
 promptInput.oninput = (e) => {
     promptServer(e.target.value)
 }
 
-readyButton.onclick = () => {
+readyButton.onclick = (e) => {
     socket.emit('drawerReady');
+    e.target.classList.add('hide');
 }
 
 function promptServer(prompt){
@@ -161,9 +161,16 @@ socket.on('youWait', () => {
     drawScreen();
 })
 
+socket.on('startRound', () => {
+    console.log('Starting round');
+    gameState = "TURN";
+    drawScreen();
+})
+
 function drawScreen(){
     setInfoText();
     setElVis(readyButton, readyVis[gameState][playerState])
+    setElVis(promptInput, inputVis[gameState][playerState])
 }
 
 function setInfoText(){

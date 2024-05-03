@@ -30,6 +30,7 @@ var players = {};
 var generatorConnected = false;
 var teams = [];
 var turnCount = 0;
+var roundLength = 30;
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -284,6 +285,10 @@ io.on('connection', (socket) => {
         cb(gameState, pState);
     })
 
+    socket.on('drawerReady', () => {
+        startRound();
+    });
+
     // Relay recieved messages
     socket.on('prompt', (prompt) => {
         // Likely unneeded TODO: find out
@@ -311,6 +316,13 @@ io.on('connection', (socket) => {
 
     //log(`---Player ${players[socket.data.id].user} id:${socket.data.id} finished connecting`);
 });
+
+async function startRound(){
+    gameState = gameStates.TURN;
+    io.to('display').emit('startCountdown')
+    await new Promise(r => setTimeout(r, 3000));
+    io.emit('startRound', roundLength);
+}
 
 // Helper to log data for manager screen
 const log = (entry) => {
