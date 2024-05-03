@@ -33,6 +33,7 @@ var teams = [];
 var turnCount = 0;
 var roundLength = 30;
 var turnSubmittedWords = [];
+var currentWords = [];
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -251,13 +252,27 @@ io.on('connection', (socket) => {
         cb(teams.map(t => t.color))
     })
 
-    socket.on('getWords', (num, cb) => {
-        cb(picWords(num));
+    socket.on('getWords', (cb) => {
+        cb(currentWords);
+    })
+
+    socket.on('newWords', (cb) => {
+        currentWords = picWords(3);
+        cb();
+    })
+
+    socket.on('newSingleWord', cb => {
+        let newWord = picWords();
+        currentWords.push(newWord);
+        cb(newWord);
     })
 
     socket.on('submitWord', (word, promptText) => {
         log('Word guessed: ' + word + " prompt: " + promptText)
         turnSubmittedWords.push({word: word, prompt: promptText})
+        try{
+        currentWords.splice(currentWords.indexOf(word), 1);
+        } catch {}
     })
 
     socket.on('getPlayerAndGameStates', (cb) => {

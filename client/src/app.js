@@ -183,12 +183,9 @@ socket.on('youWait', () => {
 socket.on('startRound', () => {
     console.log('Starting round');
     gameState = "TURN";
-    socket.emit('getWords', 3, words => {
-        words.forEach(w => {
-            addWord(w);
-        });
+    socket.emit('newWords', () => {
+        drawScreen();
     })
-    drawScreen();
 })
 
 function drawScreen(){
@@ -196,6 +193,11 @@ function drawScreen(){
     setElVis(readyButton, readyVis[gameState][playerState])
     setElVis(promptInput, inputVis[gameState][playerState])
     setElVis(wordsSection, wordsVis[gameState][playerState])
+    socket.emit('getWords', words => {
+        words.forEach(w => {
+            addWord(w);
+        })
+    })
 }
 
 function setInfoText(){
@@ -234,11 +236,16 @@ function addWord(wordText){
     submit.innerHTML = "Guessed!";
     submit.classList.add('submitButton');
     submit.onclick = async () => {
+        // Submit word
         socket.emit('submitWord', wordText, getCurrentPrompt())
+
+        // Remove word from screen
         wrap.classList.add('shrink-out');
         await sleep(200);
         wrap.remove();
-        socket.emit('getWords', 1, word => {
+
+        // Get next word and add it
+        socket.emit('newSingleWord', word => {
             addWord(word);
         })
     }
