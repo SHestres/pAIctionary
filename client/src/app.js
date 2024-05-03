@@ -3,6 +3,7 @@ var lastPrompt = "";
 var waitingPrompt = "";
 var infoText = document.querySelector('.infoText');
 var promptInput = document.querySelector('.promptInput');
+var readyButton = document.querySelector('.readyToDrawButton');
 
 const defaultMsg = "Wait for the game to Start!";
 const drawerMsg = "You are Drawing! \nAre you ready?";
@@ -11,9 +12,14 @@ const waiterMsg = "Your team isn't up this round! Dont' give away your thoughts 
 
 infoText.innerHTML = defaultMsg;
 promptInput.classList.add('hide');
+readyButton.classList.add('hide');
 
 promptInput.oninput = (e) => {
     promptServer(e.target.value)
+}
+
+readyButton.onclick = () => {
+    socket.emit('drawerReady');
 }
 
 function promptServer(prompt){
@@ -83,7 +89,7 @@ socket.emit('getPlayerStates', state => {
 socket.on('youDraw', () => {
     playerState = playerStates.DRAW;
     infoText.innerHTML = drawerMsg;
-    //TODO: Add Ready! button
+    readyButton.classList.remove('hide');
     console.log("You're drawing");
 })
 
