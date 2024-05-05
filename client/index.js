@@ -11,7 +11,7 @@ const io = new Server(httpServer, {
 })
 const path = require('path');
 
-const port = 3000;
+const port = 80;
 var eventLog = [];
 
 // Serve webpage files
@@ -31,7 +31,7 @@ var players = {};
 var generatorConnected = false;
 var teams = [];
 var turnCount = 0;
-var roundLength = 30;
+var roundLength = 200;
 var turnSubmittedWords = [];
 var currentWords = [];
 var turnSkippedWords = [];
@@ -118,8 +118,8 @@ io.on('connection', (socket) => {
         })
 
         socket.on('sendTest', () => {
-            turnCount++;
-            startPreturn();
+            gameState = gameStates.POST_TURN
+            startPostTurn();
         });
 
         log("### Manager connected");
@@ -166,6 +166,9 @@ io.on('connection', (socket) => {
             startPreturn(displayOnly = true)
         })
 
+        socket.on('getPromptsData', cb => {
+            cb(turnSubmittedWords, turnSkippedWords);
+        });
         
 
         log("Display Connected");
@@ -322,7 +325,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('drawerReady', () => {
-        startRound();
+        if(gameState == gameStates.PRE_TURN)
+            startRound();
+        else if(gameState == gameStates.POST_TURN)
+            nextRound();
     });
 
     // Relay recieved messages
@@ -358,6 +364,17 @@ async function startRound(){
     io.to('display').emit('startCountdown')
     await new Promise(r => setTimeout(r, 3000));
     io.emit('startRound', roundLength);
+    await new Promise(r => setTimeout(r, roundLength * 1000));
+    startPostTurn();
+}
+
+function nextRound(){
+    gameState = gameStates.PRE_TURN;
+    turnCount++;
+    turnSubmittedWords = [];
+    turnSkippedWords = [];
+    currentWords = [];
+    startPreturn();
 }
 
 // Helper to log data for manager screen
@@ -412,6 +429,12 @@ function startPreturn (displayOnly = false){
         teams[teamInd].color)
 }
 
+function startPostTurn(){
+    console.log('Starting post turn');
+    gameState = gameStates.POST_TURN;
+    io.emit('startPostTurn');
+}
+
 function getTurnPlayerInds(){
     if(teams.length == 0) return {"teamInd": -1, "playerInd": -1, "drawerID": -1}
     let teamInd = turnCount % teams.length;
@@ -422,5 +445,5 @@ function getTurnPlayerInds(){
 }
 
 // Can't use app.listen, it will create a new httpserver
-httpServer.listen(port);
+httpServer.listen(port, '0.0.0.0');
 console.log('listening at http://localhost:' + port)

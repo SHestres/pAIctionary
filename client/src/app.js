@@ -38,10 +38,10 @@ const pMsg = {
         WAIT: "Don't guess!"
     },
     POST_TURN: {
-        NONE: "Phrase TBD",
-        DRAW: "Phrase TBD",
-        GUESS: "Phrase TBD",
-        WAIT: "Phrase TBD"
+        NONE: "Wait a minute... who areee you??? (Error)",
+        DRAW: "Nice Job! You can relax!",
+        GUESS: "Are ya winnin' son?",
+        WAIT: "You *might* be up next..."
     }
 }
 
@@ -77,7 +77,7 @@ const readyVis = {
         NONE: false, DRAW: false, GUESS: false, WAIT: false
     },
     POST_TURN: {
-        NONE: false, DRAW: false, GUESS: false, WAIT: false
+        NONE: false, DRAW: true, GUESS: false, WAIT: false
     }
 }
 
@@ -199,12 +199,18 @@ socket.on('startRound', () => {
     })
 })
 
+socket.on('startPostTurn', () => {
+    gameState = "POST_TURN";
+    wordsList.innerHTML = null;
+    drawScreen();
+})
+
 function drawScreen(){
     setInfoText();
     setElVis(readyButton, readyVis[gameState][playerState])
     setElVis(promptInput, inputVis[gameState][playerState])
     setElVis(wordsSection, wordsVis[gameState][playerState])
-    socket.emit('getWords', words => {
+    if(playerState == "DRAW") socket.emit('getWords', words => {
         words.forEach(w => {
             addWord(w);
         })

@@ -8,6 +8,9 @@ const socket = io();
 var gameScreen = document.querySelector('.gameScreen');
 var teamCreateScreen = document.querySelector('.teamCreateScreen');
 var joinScreen = document.querySelector('.joinScreen');
+var postTurnScreen = document.querySelector('.postTurnScreen');
+var ptWords = document.querySelector('.ptWords');
+var ptPrompts = document.querySelector('.ptPrompts');
 
 socket.emit('getGameState', (status) => {
     console.log("GameState: " + status);
@@ -15,13 +18,18 @@ socket.emit('getGameState', (status) => {
         case "CREATE_TEAMS":
             gameScreen.classList.add('hide');
             joinScreen.classList.add('hide');
+            postTurnScreen.classList.add('hide');
             break;
         case "PLAYERS_JOIN":
             freshLoadJoinScreen();
             break;
         case "PRE_TURN":
             teamCreateScreen.classList.add('hide');
+            postTurnScreen.classList.add('hide');
             socket.emit('getPreTurn'); 
+            break;
+        case "POST_TURN":
+            freshLoadPostTurn();
             break;
         default:
             freshLoadGameScreen();
@@ -56,6 +64,10 @@ socket.on('startCountdown', () => {
 
 socket.on('startRound', (roundLength) => {
     setTimer(roundLength);
+})
+
+socket.on('startPostTurn', () => {
+    loadPostTurn();
 })
 
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
@@ -104,7 +116,7 @@ function increaseNumTeams(event){
     document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
     addColorSelector();
     setColorSelectionActions();
-}    
+}
 
 function decreaseNumTeams(event){
     numberOfTeams--;
@@ -161,6 +173,7 @@ function startGame() {
 }
 
 function freshLoadGameScreen(){
+    postTurnScreen.classList.add('hide');
     loadGameScreen();
 }
 
@@ -221,11 +234,43 @@ function loadJoinScreen(){
 
 function freshLoadJoinScreen(){
     gameScreen.classList.add('hide');
+    postTurnScreen.classList.add('hide');
     socket.emit('getTeamColors', (colorList) => {
         console.log(colorList);
         teamColors = colorList;
         numberOfTeams = teamColors.length;
         loadJoinScreen();
+    })
+}
+
+function freshLoadPostTurn(){
+    joinScreen.classList.add('hide');
+    teamCreateScreen.classList.add('hide');
+    loadPostTurn();
+}
+
+function loadPostTurn(){
+    gameScreen.classList.add('hide');
+    postTurnScreen.classList.remove('hide');
+    ptWords.innerHTML = null;
+    ptPrompts.innerHTML = null;
+    socket.emit('getPromptsData', (gotWords, skipWords) => {
+        gotWords.forEach(w => {
+            let newWord = document.createElement('div');
+            newWord.innerHTML = w.word;
+            newWord.classList.add('ptWordGuessed')
+            ptWords.appendChild(newWord);
+            let newPrompt = document.createElement('div');
+            newPrompt.innerHTML = w.prompt;
+            newPrompt.classList.add('ptPromptGuessed')
+            ptPrompts.appendChild(newPrompt)
+        })
+        skipWords.forEach(w => {
+            let newSkip = document.createElement('div');
+            newSkip.innerHTML = w;
+            newSkip.classList.add('ptWordSkipped')
+            ptWords.appendChild(newSkip);
+        })
     })
 }
 

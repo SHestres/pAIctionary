@@ -158,3 +158,46 @@ body {
     opacity: 1;
   }
 }
+
+
+
+
+/* Post Turn */
+
+.postTurnScreen {
+    display: flex;
+    width: 80vw;
+    background-color: white;
+    margin: auto;
+    border-radius: 2vh;
+    padding: 5vh;
+}
+
+.ptWords , .ptPrompts{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh;
+}
+
+.ptWords {
+    flex: 1;
+}
+.ptPrompts {
+    flex: 3;
+}
+
+.ptWordGuessed, .ptWordSkipped, .ptPromptGuessed {
+    background-color: white;
+    font-size: 3vh;
+    padding: 0.5vh;
+    text-align: center;
+}
+
+.ptWordGuessed {
+    color: green;
+}
+
+.ptWordSkipped {
+    color: red;
+}
