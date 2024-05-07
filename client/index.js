@@ -11,7 +11,7 @@ const io = new Server(httpServer, {
 })
 const path = require('path');
 
-const port = 80;
+const port = 3000;
 var eventLog = [];
 
 // Serve webpage files
@@ -398,10 +398,6 @@ const updateManagerGenerator = () => {
 }
 
 function startPreturn (displayOnly = false){
-    /*let teamInd = turnCount % teams.length;
-    let playerInd = Math.floor(turnCount / teams.length) % teams[teamInd].players.length;
-    let drawerID = teams[teamInd].players[playerInd]
-    */
     let {teamInd, playerInd, drawerID} = getTurnPlayerInds();
     if(!displayOnly) players[drawerID].emit('youDraw')
     let guessers = [];

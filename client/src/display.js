@@ -11,25 +11,47 @@ var joinScreen = document.querySelector('.joinScreen');
 var postTurnScreen = document.querySelector('.postTurnScreen');
 var ptWords = document.querySelector('.ptWords');
 var ptPrompts = document.querySelector('.ptPrompts');
+var gameState = "";
 
-socket.emit('getGameState', (status) => {
-    console.log("GameState: " + status);
-    switch (status){
+// Set temporary button onclicks
+document.querySelector('.blueButton').onclick = () => {setColor(blue)}
+document.querySelector('.redButton').onclick = () => {setColor(red)}
+document.querySelector('.timerButton').onclick = () => {setTimer(30)}
+document.querySelector('.countdownButton').onclick = () => {startCountdown()};
+
+// Set permanent button onclicks
+document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
+document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
+document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
+document.querySelector('.startGameButton').onclick = startGame;
+
+document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
+
+// Return to correct screen on refresh
+socket.emit('getGameState', (state) => {
+    console.log("GameState: " + state);
+    gameState = state;
+    switch (state){
         case "CREATE_TEAMS":
-            gameScreen.classList.add('hide');
-            joinScreen.classList.add('hide');
-            postTurnScreen.classList.add('hide');
+            drawScreen();
             break;
         case "PLAYERS_JOIN":
-            freshLoadJoinScreen();
+            socket.emit('getTeamColors', (colorList) => {
+                console.log(colorList);
+                teamColors = colorList;
+                numberOfTeams = teamColors.length;
+                loadJoinScreen();
+            })
             break;
         case "PRE_TURN":
-            teamCreateScreen.classList.add('hide');
-            postTurnScreen.classList.add('hide');
+            // Ask server to re-trigger displays pre-turn
             socket.emit('getPreTurn'); 
             break;
+        case "TURN":
+            socket.emit('getPreTurn');
+            break;
         case "POST_TURN":
-            freshLoadPostTurn();
+            loadPostTurn();
             break;
         default:
             freshLoadGameScreen();
@@ -37,9 +59,76 @@ socket.emit('getGameState', (status) => {
     }
 });
 
+/*
 socket.on('startGame', () => {
     loadGameScreen();
 })
+*/
+
+//////// Team Creation ////////
+
+// Template to create team color selector
+const colorSelectorTemplateString = "\
+<div class='colorSelectWrapper'>\
+    <div class='colorSelectLabel'></div>\
+    <div class='teamColorSelect'>\
+        <div class='selectableColor blue'></div>\
+        <div class='selectableColor red'></div>\
+        <div class='selectableColor yellow'></div>\
+        <div class='selectableColor green'></div>\
+        <div class='selectableColor purple'></div>\
+        <div class='selectableColor orange'></div>\
+    </div>\
+</div>"
+
+// Create new color selector element from template string
+const newColorSelectorTemplate = () => {
+    let div = document.createElement('div');
+    div.innerHTML = colorSelectorTemplateString.trim();
+    return div.firstChild;
+};
+
+// Setup initial two teams
+for(let i = 0; i < numberOfTeams; i++) addColorSelector();
+
+// Add callbacks to increase and decrease number of teams buttons
+function increaseNumTeams(event){
+    if(numberOfTeams >= 6) return;
+    numberOfTeams++;
+    document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
+    addColorSelector();
+}
+function decreaseNumTeams(event){
+    if(numberOfTeams <= 1) return;
+    numberOfTeams--;
+    document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
+    removeColorSelector();
+}
+
+// Helper functions to add and remove color selector elements
+function addColorSelector(){
+    // Add element
+    let selectors = document.querySelector('.teamColorSelectors');
+    let newSelector = selectors.appendChild(newColorSelectorTemplate());
+    // Select color corresponding to team number
+    let ind= selectors.children.length - 1;
+    let selCol = Array.from(newSelector.lastChild.children)[ind];
+    newSelector.firstElementChild.innerHTML = 'Team ' + (ind + 1);
+    selCol.classList.add('selectedColor');
+    // Remember selected color
+    teamColors[ind] = window.getComputedStyle(selCol).backgroundColor;
+    // Set callbacks
+    document.querySelectorAll('.selectableColor').forEach(el => {el.onclick = selectColor})
+}
+
+function removeColorSelector(){
+    let selectors = document.querySelector('.teamColorSelectors');
+    selectors.removeChild(selectors.lastChild);
+}
+
+
+
+
 
 socket.on('addPlayer', (teamInd, name) => {
     let newName = document.createElement('div');
@@ -49,9 +138,6 @@ socket.on('addPlayer', (teamInd, name) => {
     Array.from(document.querySelector('.teamLists').children)[teamInd].appendChild(newName)
 })
 
-socket.on('PRE_TURN', (guessers, drawer, col) => {
-    preTurn(guessers, drawer, col);
-})
 
 socket.on('image', image => {
     console.log('recieved image');
@@ -69,76 +155,6 @@ socket.on('startRound', (roundLength) => {
 socket.on('startPostTurn', () => {
     loadPostTurn();
 })
-
-document.querySelector('.blueButton').onclick = () => {setColor(blue)}
-document.querySelector('.redButton').onclick = () => {setColor(red)}
-document.querySelector('.timerButton').onclick = () => {setTimer(30)}
-document.querySelector('.countdownButton').onclick = () => {startCountdown()};
-
-document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
-document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
-document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
-document.querySelector('.startGameButton').onclick = startGame;
-
-document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
-
-const colorSelectorTemplateString = "\
-<div class='colorSelectWrapper'>\
-    <div class='colorSelectLabel'></div>\
-    <div class='teamColorSelect'>\
-        <div class='selectableColor blue'></div>\
-        <div class='selectableColor red'></div>\
-        <div class='selectableColor yellow'></div>\
-        <div class='selectableColor green'></div>\
-        <div class='selectableColor purple'></div>\
-        <div class='selectableColor orange'></div>\
-    </div>\
-</div>\
-"
-
-const newColorSelectorTemplate = () => {
-    let div = document.createElement('div');
-    div.innerHTML = colorSelectorTemplateString.trim();
-    return div.firstChild;
-};    
-
-for(let i = 0; i < numberOfTeams; i++) addColorSelector();
-
-const setColorSelectionActions = () => {
-    document.querySelectorAll('.selectableColor').forEach(el => {el.onclick = selectColor})
-}
-
-setColorSelectionActions();
-
-function increaseNumTeams(event){
-    if(numberOfTeams >= 6) return;
-    numberOfTeams++;
-    document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
-    addColorSelector();
-    setColorSelectionActions();
-}
-
-function decreaseNumTeams(event){
-    numberOfTeams--;
-    document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
-    removeColorSelector();
-}
-
-function addColorSelector(){
-    let selectors = document.querySelector('.teamColorSelectors');
-    let newSelector = selectors.appendChild(newColorSelectorTemplate());
-    let ind= selectors.children.length - 1;
-    let selCol = Array.from(newSelector.lastChild.children)[ind];
-    newSelector.firstElementChild.innerHTML = 'Team ' + (ind + 1);
-    selCol.classList.add('selectedColor');
-    teamColors[ind] = window.getComputedStyle(selCol).backgroundColor;
-}
-
-function removeColorSelector(){
-    let selectors = document.querySelector('.teamColorSelectors');
-    selectors.removeChild(selectors.lastChild);
-}
-
 function selectColor(event){
     event.target.parentElement.childNodes.forEach((node) => {
         try{node.classList.remove('selectedColor');}
@@ -154,27 +170,14 @@ function setColor(color){
     document.querySelector(':root').style.setProperty('--teamColor', color);
 }
 
-async function setTimer(time){
-    document.querySelector(':root').style.setProperty('--timerLength', time.toString() + 's')
-    document.querySelector('.hourglass').classList.add('hgAnim')
-    document.querySelector('.fill').classList.add('fAnim')
-    document.querySelector('.glare').classList.add('gAnim')
-
-    await new Promise(r => setTimeout(r, time * 1000));
-
-    document.querySelector('.hourglass').classList.remove('hgAnim')
-    document.querySelector('.fill').classList.remove('fAnim')
-    document.querySelector('.glare').classList.remove('gAnim')
+function submitTeams(){
+    socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
+    gameState = "PLAYERS_JOIN";
+    loadJoinScreen();
 }
 
 function startGame() {
     socket.emit('startGame');
-    loadGameScreen();
-}
-
-function freshLoadGameScreen(){
-    postTurnScreen.classList.add('hide');
-    loadGameScreen();
 }
 
 function loadGameScreen(){
@@ -184,34 +187,14 @@ function loadGameScreen(){
     document.querySelector('.imageImage').setAttribute('src', '/img/ready_to_guess_2.jpg');
 }
 
-function preTurn(guessers, drawer, col){
-    //Change screen
-    loadGameScreen();
-
-    //Set color
-    setColor(col);
-
-    //Display guessers
-    var guessList = document.querySelector('.guessersNamesList');
-    guessList.innerHTML = null;
-    guessers.forEach(g => {
-        let newName = document.createElement('div');
-        newName.innerHTML = g;
-        guessList.appendChild(newName)
-    })
-
-    //Display Drawer
-    document.querySelector('.drawerName').innerHTML = drawer + " is Drawing";
-}
-
-function submitTeams(){
-    socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
-    loadJoinScreen();
+function drawScreen(){
+    setElVis(gameScreen, gameState == "PRE_TURN" || gameState == "TURN")
+    setElVis(teamCreateScreen, gameState == "CREATE_TEAMS")
+    setElVis(joinScreen, gameState == "PLAYERS_JOIN")
+    setElVis(postTurnScreen, gameState == "POST_TURN")
 }
 
 function loadJoinScreen(){
-    teamCreateScreen.classList.add('hide');
-    joinScreen.classList.remove('hide');
     for(let i = 0; i < numberOfTeams; i++){
         let newDiv = document.createElement('div');
         newDiv.classList.add('teamList');
@@ -228,26 +211,31 @@ function loadJoinScreen(){
                 teams[i].appendChild(p);
             }
         }
-
     })
+    drawScreen();
 }
 
-function freshLoadJoinScreen(){
-    gameScreen.classList.add('hide');
-    postTurnScreen.classList.add('hide');
-    socket.emit('getTeamColors', (colorList) => {
-        console.log(colorList);
-        teamColors = colorList;
-        numberOfTeams = teamColors.length;
-        loadJoinScreen();
+socket.on('PRE_TURN', (guessers, drawer, col) => {
+    gameState = "PRE_TURN";
+
+    // Set color
+    setColor(col);
+
+    // Display guesser names
+    var guessList = document.querySelector('.guessersNamesList');
+    guessList.innerHTML = null;
+    guessers.forEach(g => {
+        let newName = document.createElement('div');
+        newName.innerHTML = g;
+        guessList.appendChild(newName)
     })
-}
 
-function freshLoadPostTurn(){
-    joinScreen.classList.add('hide');
-    teamCreateScreen.classList.add('hide');
-    loadPostTurn();
-}
+    // Display drawer name
+    document.querySelector('.drawerName').innerHTML = drawer + " is Drawing";
+
+    // Draw Screen
+    drawScreen();
+})
 
 function loadPostTurn(){
     gameScreen.classList.add('hide');
@@ -272,6 +260,18 @@ function loadPostTurn(){
             ptWords.appendChild(newSkip);
         })
     })
+    drawScreen();
+}
+
+function setElVis(element, visible){
+    if(visible){
+        try{ element.classList.remove('hide'); }
+        catch{}
+    }
+    else{
+        try{ element.classList.add('hide'); }
+        catch{}
+    }
 }
 
 async function startCountdown(){
@@ -295,4 +295,17 @@ async function startCountdown(){
     cd.classList.remove('scale-out-center');
     cd.innerHTML = "";
     console.log("End of cd");
+}
+
+async function setTimer(time){
+    document.querySelector(':root').style.setProperty('--timerLength', time.toString() + 's')
+    document.querySelector('.hourglass').classList.add('hgAnim')
+    document.querySelector('.fill').classList.add('fAnim')
+    document.querySelector('.glare').classList.add('gAnim')
+
+    await new Promise(r => setTimeout(r, time * 1000));
+
+    document.querySelector('.hourglass').classList.remove('hgAnim')
+    document.querySelector('.fill').classList.remove('fAnim')
+    document.querySelector('.glare').classList.remove('gAnim')
 }
