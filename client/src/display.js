@@ -12,6 +12,7 @@ var postTurnScreen = document.querySelector('.postTurnScreen');
 var ptWords = document.querySelector('.ptWords');
 var ptPrompts = document.querySelector('.ptPrompts');
 var gameState = "";
+var dispImg = document.querySelector('.imageImage');
 
 // Set temporary button onclicks
 document.querySelector('.blueButton').onclick = () => {setColor(blue)}
@@ -59,11 +60,6 @@ socket.emit('getGameState', (state) => {
     }
 });
 
-/*
-socket.on('startGame', () => {
-    loadGameScreen();
-})
-*/
 
 //////// Team Creation ////////
 
@@ -120,41 +116,12 @@ function addColorSelector(){
     // Set callbacks
     document.querySelectorAll('.selectableColor').forEach(el => {el.onclick = selectColor})
 }
-
 function removeColorSelector(){
     let selectors = document.querySelector('.teamColorSelectors');
     selectors.removeChild(selectors.lastChild);
 }
 
-
-
-
-
-socket.on('addPlayer', (teamInd, name) => {
-    let newName = document.createElement('div');
-    newName.classList.add('playerName');
-    newName.classList.add('slide-in-bck-center');
-    newName.innerHTML = name;
-    Array.from(document.querySelector('.teamLists').children)[teamInd].appendChild(newName)
-})
-
-
-socket.on('image', image => {
-    console.log('recieved image');
-    document.querySelector('.imageImage').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`;
-})
-
-socket.on('startCountdown', () => {
-    startCountdown();
-});
-
-socket.on('startRound', (roundLength) => {
-    setTimer(roundLength);
-})
-
-socket.on('startPostTurn', () => {
-    loadPostTurn();
-})
+// Callbacks for the color selectors
 function selectColor(event){
     event.target.parentElement.childNodes.forEach((node) => {
         try{node.classList.remove('selectedColor');}
@@ -165,42 +132,33 @@ function selectColor(event){
     teamColors[ind] = window.getComputedStyle(event.target).backgroundColor;
 }
 
-function setColor(color){
-    document.querySelector(':root').style.setProperty('--primary', color);
-    document.querySelector(':root').style.setProperty('--teamColor', color);
-}
-
+//// Submit teams and trigger PLAYERS_JOIN gameState
 function submitTeams(){
     socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
     gameState = "PLAYERS_JOIN";
     loadJoinScreen();
 }
 
-function startGame() {
-    socket.emit('startGame');
-}
+////// Players Join ////////
 
-function loadGameScreen(){
-    joinScreen.classList.add('hide');
-    gameScreen.classList.remove('hide');
-
-    document.querySelector('.imageImage').setAttribute('src', '/img/ready_to_guess_2.jpg');
-}
-
-function drawScreen(){
-    setElVis(gameScreen, gameState == "PRE_TURN" || gameState == "TURN")
-    setElVis(teamCreateScreen, gameState == "CREATE_TEAMS")
-    setElVis(joinScreen, gameState == "PLAYERS_JOIN")
-    setElVis(postTurnScreen, gameState == "POST_TURN")
-}
+// Add player name only to DOM, client recieves all player data from server every time it draws
+socket.on('addPlayer', (teamInd, name) => {
+    let newName = document.createElement('div');
+    newName.classList.add('playerName');
+    newName.classList.add('slide-in-bck-center');
+    newName.innerHTML = name;
+    Array.from(document.querySelector('.teamLists').children)[teamInd].appendChild(newName)
+})
 
 function loadJoinScreen(){
     for(let i = 0; i < numberOfTeams; i++){
+        // Create columns for each team for player names to appear in
         let newDiv = document.createElement('div');
         newDiv.classList.add('teamList');
         newDiv.style.backgroundColor = teamColors[i];
         document.querySelector('.teamLists').appendChild(newDiv)
     }
+    // Add existing player names to lists
     socket.emit('getPlayers', (players) => {
         let teams = Array.from(document.querySelector('.teamLists').children);
         for(let i = 0; i < numberOfTeams; i++){
@@ -213,6 +171,19 @@ function loadJoinScreen(){
         }
     })
     drawScreen();
+}
+
+// Transition to game loop at PRE_TURN gameState
+function startGame() {
+    socket.emit('startGame');
+}
+
+////// PRE_TURN ////////
+
+// Set the team color for all css to pull from
+function setColor(color){
+    document.querySelector(':root').style.setProperty('--primary', color);
+    document.querySelector(':root').style.setProperty('--teamColor', color);
 }
 
 socket.on('PRE_TURN', (guessers, drawer, col) => {
@@ -233,15 +204,44 @@ socket.on('PRE_TURN', (guessers, drawer, col) => {
     // Display drawer name
     document.querySelector('.drawerName').innerHTML = drawer + " is Drawing";
 
+    // Set temporary image
+    dispImg.src = "/img/ready_to_guess_2.jpg";
+
     // Draw Screen
     drawScreen();
 })
 
+// Only starts animation. Function defined at end of file for readability
+socket.on('startCountdown', () => {
+    startCountdown();
+});
+
+//////// TURN ////////
+// No transition, turn screen is the same as pre_turn
+
+// Only starts animation. Function defined at end of file for readability
+socket.on('startRound', (roundLength) => {
+    setTimer(roundLength);
+})
+
+socket.on('image', image => {
+    console.log('recieved image');
+    document.querySelector('.imageImage').src = `data:image/jpeg;base64,${new TextDecoder().decode(image)}`;
+})
+
+
+
+//////// POST_TURN ////////
+
+socket.on('startPostTurn', () => {
+    gameState = "POST_TURN";
+    loadPostTurn();
+})
+
 function loadPostTurn(){
-    gameScreen.classList.add('hide');
-    postTurnScreen.classList.remove('hide');
     ptWords.innerHTML = null;
     ptPrompts.innerHTML = null;
+    // Populate post-turn words lists
     socket.emit('getPromptsData', (gotWords, skipWords) => {
         gotWords.forEach(w => {
             let newWord = document.createElement('div');
@@ -263,6 +263,15 @@ function loadPostTurn(){
     drawScreen();
 }
 
+//// Rendering Helpers ////
+
+function drawScreen(){
+    setElVis(gameScreen, gameState == "PRE_TURN" || gameState == "TURN")
+    setElVis(teamCreateScreen, gameState == "CREATE_TEAMS")
+    setElVis(joinScreen, gameState == "PLAYERS_JOIN")
+    setElVis(postTurnScreen, gameState == "POST_TURN")
+}
+
 function setElVis(element, visible){
     if(visible){
         try{ element.classList.remove('hide'); }
@@ -273,6 +282,8 @@ function setElVis(element, visible){
         catch{}
     }
 }
+
+//// Animation Helpers ////
 
 async function startCountdown(){
     document.querySelector('.imageImage').setAttribute('src', "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=");
