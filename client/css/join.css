@@ -1,0 +1,35 @@
+.Title{
+    text-align: center;
+    font-size: 8vw;
+    margin-bottom: 0px;
+}
+
+.nameInputWrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nameInput{
+    width: 80vw;
+    font-size: 10vw;
+    padding: 1vw;
+    margin: 5vw;
+    text-align: center;
+}
+
+.teamSelector{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.teamSelector > button {
+    flex: 1;
+    padding: 2vw;
+    font-size: 5vw;
+    border-radius: 2vw;
+    min-width: fit-content;
+}
