@@ -19,7 +19,7 @@ body {
     animation-duration: 500s;
     animation-iteration-count: infinite;
     animation-timing-function: ease-in-out;
-    min-height: calc(100vh - 16px)
+    min-height: calc(100vh - 16px);
 }
 
 @keyframes bgScroll{
