@@ -15,6 +15,11 @@ import path from 'path'
 //const __dirname = dirname(fileURLToPath(import.meta.dirname))
 import {generate as picWords} from 'random-words'
 
+process.on("SIGINT", () => {
+    console.info("Interrupted");
+    process.exit(0);
+})
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
