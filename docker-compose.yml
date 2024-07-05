@@ -1,0 +1,6 @@
+---
+services:
+  gameserver:
+    build: ./client
+    ports:
+      - "7242:3000"
