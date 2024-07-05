@@ -1,25 +1,43 @@
-const express = require('express');
+/*const express = require('express');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-const picWords = require('word-pictionary-list')
 const cookie = require('cookie')
+const path = require('path');
+*/
+
+import express from 'express'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import cookie from 'cookie'
+import path from 'path'
+//import { dirname } from 'path'
+//import { fileURLToPath } from 'url'
+//const __dirname = dirname(fileURLToPath(import.meta.dirname))
+import {generate as picWords} from 'random-words'
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cookie: true,
 })
-const path = require('path');
 
 const port = 3000;
 var eventLog = [];
 
+//console.log(generate(3));
+console.log(picWords(3))
+
 // Serve webpage files
-app.use(express.static(path.join(__dirname, 'pages'),{extensions:['html']}));
+/*app.use(express.static(path.join(__dirname, 'pages'),{extensions:['html']}));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/img', express.static(path.join(__dirname, 'img')));
+*/
 
+app.use(express.static('pages',{extensions:['html']}));
+app.use('/src', express.static('src'));
+app.use('/css', express.static('css'));
+app.use('/img', express.static('img'));
 
 app.get('/', (req, res) => {
     res.redirect('/join')
@@ -188,7 +206,6 @@ io.on('connection', (socket) => {
         socket.data.id = id;
         
 
-        const picWords = require('word-pictionary-list')
         // If id from cookie is valid
         if(Object.keys(players).includes(socket.data.id) && timeStamp >= startTime){
             log("gameSessionData is valid");
