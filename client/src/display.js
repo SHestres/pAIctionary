@@ -175,6 +175,17 @@ function loadJoinScreen(){
 
 // Transition to game loop at PRE_TURN gameState
 function startGame() {
+    let emptyTeam = false;
+    Array.from(document.querySelector('.teamLists').children).forEach(t => {
+        if(t.children.length < 1) {
+            emptyTeam = true;
+        }
+    })
+    if(emptyTeam) {
+        document.querySelector('.invalidTeamsText').setAttribute("style", "display: block;");
+        return;
+    }
+    document.querySelector('.invalidTeamsText').setAttribute("style", "display: none;");
     socket.emit('startGame');
 }
 

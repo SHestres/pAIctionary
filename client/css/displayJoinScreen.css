@@ -44,6 +44,14 @@
     text-align: center;
 }
 
+.invalidTeamsText {
+    background-color: white;
+    font: bolder;
+    font-size: x-large;
+    padding: .5em;
+    border-radius: .5vh;
+}
+
 .startGameButton {
     font-size: 3vh;
     background-color: white;
@@ -53,6 +61,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 2em;
 }
 
 /* ----------------------------------------------
