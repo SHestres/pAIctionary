@@ -1,5 +1,37 @@
+body {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.5)), url("/img/player_background_1.jpg");
+    background-size: cover;
+    min-height: calc(100dvh - 16px);
+    background-position: 50%;
+}
+
 .hide {
     display: none !important;
+}
+
+.infoText {
+    color: white;
+    font: bold;
+    font-size: 10vw;
+    padding: 3vw;
+    text-align: center;
+}
+
+.CenterWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.readyToDrawButton {
+    padding: 3vw;
+    font: bold;
+    font-size: 5vw;
+    border-radius: 2vw;
+    min-width: fit-content;
+    width: 60vw;
 }
 
 .promptInput {
@@ -10,6 +42,10 @@
 
 .wordsSection {
     display: flex;
+}
+
+.wordsList {
+    flex: 2;
 }
 
 .skipButtonWrapper{
@@ -31,21 +67,24 @@
 
 .wordWrapper {
     display: flex;
-    width: 50vw;
+    width: 100%;
     justify-content: space-between;
 }
 
 .word{
     padding: 2vh;
-    font-size: 5vw;
+    font-size: 6vw;
     text-align: center;
     flex: 1;
+    color: white;
+    font: bolder;
 }
 
 .submitButton {
     padding: 1vh;
-    width: 20vw;
+    width: 25vw;
     justify-self: flex-end;
+    font-size: 4vw;
 }
 
 .shrink-out{
