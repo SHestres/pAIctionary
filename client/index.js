@@ -54,10 +54,12 @@ var players = {};
 var generatorConnected = false;
 var teams = [];
 var turnCount = 0;
-var roundLength = 200;//200;
+var roundLength = 30;//200;
 var turnSubmittedWords = [];
 var currentWords = [];
 var turnSkippedWords = [];
+
+var turnStartTime = 0;
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -186,13 +188,18 @@ io.on('connection', (socket) => {
         })
 
         socket.on('getPreTurn', () => {
-            startPreturn(displayOnly = true)
+            startPreturn(true)
         })
 
         socket.on('getPromptsData', cb => {
             cb(turnSubmittedWords, turnSkippedWords);
         });
-        
+
+        socket.on('getTimerRemainder', cb => {
+            if(turnStartTime != 0)
+                cb((roundLength * 1000) - (Date.now() - turnStartTime));
+            else cb(0);
+        })
 
         log("Display Connected");
         socket.join("display");
@@ -386,7 +393,9 @@ async function startRound(){
     io.to('display').emit('startCountdown')
     await new Promise(r => setTimeout(r, 3000));
     io.emit('startRound', roundLength);
+    turnStartTime = Date.now();
     await new Promise(r => setTimeout(r, roundLength * 1000));
+    turnStartTime = 0;
     startPostTurn();
 }
 

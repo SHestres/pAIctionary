@@ -50,6 +50,9 @@ socket.emit('getGameState', (state) => {
             break;
         case "TURN":
             socket.emit('getPreTurn');
+            socket.emit('getTimerRemainder', (t) => {
+                setTimer(t / 1000);
+            })
             break;
         case "POST_TURN":
             loadPostTurn();
@@ -320,7 +323,7 @@ async function startCountdown(){
 }
 
 async function setTimer(time){
-    document.querySelector(':root').style.setProperty('--timerLength', time.toString() + 's')
+    document.querySelector(':root').style.setProperty('--timerLength', Math.floor(time * 1000) + 'ms')
     document.querySelector('.hourglass').classList.add('hgAnim')
     document.querySelector('.fill').classList.add('fAnim')
     document.querySelector('.glare').classList.add('gAnim')
