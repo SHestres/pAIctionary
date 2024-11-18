@@ -1,7 +1,7 @@
 socket.emit('getTeamColors', (colors) => {
     let teamSelector = document.querySelector('.teamSelector');
     if(colors.length == 0){
-        teamSelector.innerHTML = 'Create Teams on your TV and refresh!';
+        document.querySelector('.Title').innerHTML = 'Create Teams on your TV and refresh!';
         return;
     }
     else{
