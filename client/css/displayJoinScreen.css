@@ -53,16 +53,19 @@
 }
 
 .startGameButton {
-    font-size: 3vh;
+    font-size: 4vh;
+    padding: 2vh;
+    border-radius: 10vh;
     background-color: white;
-    border-radius: 1vh;
+    border: none;
 }
+
 .startGameButtonWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 2em;
+  gap: 2vh;
 }
 
 /* ----------------------------------------------
