@@ -196,6 +196,7 @@ body {
     grid-template-columns: minmax(1fr, 3fr);
     gap: 1vh;
     align-items: center;
+    width: 100%;
 }
 
 .ptWordGuessed, .ptWordSkipped, .ptPromptGuessed {
