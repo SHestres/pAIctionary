@@ -30,7 +30,7 @@ const pMsg = {
     PRE_TURN: {
         DRAW: "You are Drawing! \nAre you ready?",
         GUESS: "Your team is drawing this round! Get ready to guess!",
-        WAIT: "Your team isn't up this round! Dont' give away your thoughts to your opponents!",
+        WAIT: "Your team isn't up this round! Don't give away your thoughts to your opponents!",
     },
     TURN: {
         DRAW: "Start typing and your generated images will display on the tv!",
