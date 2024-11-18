@@ -14,19 +14,16 @@ var ptPrompts = document.querySelector('.ptPrompts');
 var gameState = "";
 var dispImg = document.querySelector('.imageImage');
 
-// Set temporary button onclicks
-document.querySelector('.blueButton').onclick = () => {setColor(blue)}
-document.querySelector('.redButton').onclick = () => {setColor(red)}
-document.querySelector('.timerButton').onclick = () => {setTimer(30)}
-document.querySelector('.countdownButton').onclick = () => {startCountdown()};
-
-// Set permanent button onclicks
 document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
 document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
 document.querySelector('.finishTeamSelectBtn').onclick = submitTeams;
 document.querySelector('.startGameButton').onclick = startGame;
-
 document.querySelector('.numberOfTeams').innerHTML = numberOfTeams;
+document.querySelectorAll('.endGameButton').forEach(b => b.onclick = () => {socket.emit('restartGame')})
+
+socket.on('refresh', () => {
+    document.location.reload();
+})
 
 // Return to correct screen on refresh
 socket.emit('getGameState', (state) => {

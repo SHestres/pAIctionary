@@ -49,7 +49,6 @@ app.get('/', (req, res) => {
 })
 
 var startTime = Date.now();
-
 var players = {};
 var generatorConnected = false;
 var teams = [];
@@ -70,6 +69,18 @@ var gameStates = {
 };
 
 var gameState = gameStates.CREATE_TEAMS;
+
+const restartGame = () => {
+    startTime = Date.now();
+    teams = [];
+    turnCount = 0;
+    roundLength = 200;
+    turnSubmittedWords = [];
+    currentWords = [];
+    turnSkippedWords = [];
+    turnStartTime = 0;
+    gameState = gameStates.CREATE_TEAMS;
+}
 
 // Check cookies during handshake
 io.engine.on("initial_headers", (headers, request) => {
@@ -199,6 +210,11 @@ io.on('connection', (socket) => {
             if(turnStartTime != 0)
                 cb((roundLength * 1000) - (Date.now() - turnStartTime));
             else cb(0);
+        })
+
+        socket.on('restartGame', () => {
+            restartGame();
+            io.emit('refresh');
         })
 
         log("Display Connected");

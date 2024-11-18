@@ -6,6 +6,11 @@ socket.on('redirect', loc => {
         window.location.href = loc;
 })
 
+// Refresh page on command
+socket.on('refresh', () => {
+    document.location.reload();
+})
+
 // Send initialization data to server
 socket.on('sendID', (dnm) => {
     console.log('Sending ID')
