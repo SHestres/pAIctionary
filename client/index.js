@@ -26,7 +26,7 @@ const io = new Server(httpServer, {
     cookie: true,
 })
 
-const port = 3000;
+const port = 7242;
 var eventLog = [];
 
 // Serve webpage files
