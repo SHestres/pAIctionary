@@ -263,7 +263,7 @@ function loadPostTurn(){
             let newPrompt = document.createElement('div');
             newPrompt.innerHTML = w.prompt;
             newPrompt.classList.add('ptPromptGuessed')
-            ptPrompts.appendChild(newPrompt)
+            ptWords.appendChild(newPrompt)
         })
         skipWords.forEach(w => {
             let newSkip = document.createElement('div');

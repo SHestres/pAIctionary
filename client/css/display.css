@@ -191,18 +191,11 @@ body {
     padding: 5vh;
 }
 
-.ptWords , .ptPrompts{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1vh;
-}
-
 .ptWords {
-    flex: 1;
-}
-.ptPrompts {
-    flex: 3;
+    display: grid;
+    grid-template-columns: minmax(1fr, 3fr);
+    gap: 1vh;
+    align-items: center;
 }
 
 .ptWordGuessed, .ptWordSkipped, .ptPromptGuessed {
@@ -210,12 +203,19 @@ body {
     font-size: 3vh;
     padding: 0.5vh;
     text-align: center;
+    text-wrap: balance;
+}
+
+.ptPromptGuessed {
+    grid-column: 2;
 }
 
 .ptWordGuessed {
     color: green;
+    grid-column: 1;
 }
 
 .ptWordSkipped {
     color: red;
+    grid-column: 1;
 }
