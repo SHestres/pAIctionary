@@ -53,7 +53,7 @@ var players = {};
 var generatorConnected = false;
 var teams = [];
 var turnCount = 0;
-var roundLength = 30;//200;
+var turnLength = 30;//200;
 var turnSubmittedWords = [];
 var currentWords = [];
 var turnSkippedWords = [];
@@ -76,7 +76,7 @@ const restartGame = () => {
     startTime = Date.now();
     teams = [];
     turnCount = 0;
-    roundLength = 200;
+    turnLength = 200;
     turnSubmittedWords = [];
     currentWords = [];
     turnSkippedWords = [];
@@ -173,7 +173,8 @@ io.on('connection', (socket) => {
     // Display connection
     if(socket.handshake.headers.referer.split('/')[3].substring(0,7) == "display"){
 
-        socket.on('createTeams', colorList => {
+        socket.on('createTeams', (colorList, turnLengthSec) => {
+            turnLength = turnLengthSec;
             teams = [];
             for(let i = 0; i < colorList.length; i++){
                 teams[i] = {color: colorList[i], players: []};
@@ -210,7 +211,7 @@ io.on('connection', (socket) => {
 
         socket.on('getTimerRemainder', cb => {
             if(turnStartTime != 0)
-                cb((roundLength * 1000) - (Date.now() - turnStartTime));
+                cb((turnLength * 1000) - (Date.now() - turnStartTime));
             else cb(0);
         })
 
@@ -412,9 +413,9 @@ async function startRound(){
     gameState = gameStates.TURN;
     io.to('display').emit('startCountdown')
     await new Promise(r => setTimeout(r, 3000));
-    io.emit('startRound', roundLength);
+    io.emit('startRound', turnLength);
     turnStartTime = Date.now();
-    await new Promise(r => setTimeout(r, roundLength * 1000));
+    await new Promise(r => setTimeout(r, turnLength * 1000));
     turnStartTime = 0;
     if(turnStillActive[turnNumber]){
         turnStillActive[turnNumber] = false;

@@ -13,6 +13,7 @@ var ptWords = document.querySelector('.ptWords');
 var ptPrompts = document.querySelector('.ptPrompts');
 var gameState = "";
 var dispImg = document.querySelector('.imageImage');
+var turnLengthInput = document.querySelector('.turnLengthInput');
 
 document.querySelector('.increaseNumTeams').onclick = increaseNumTeams;
 document.querySelector('.decreaseNumTeams').onclick = decreaseNumTeams;
@@ -134,7 +135,7 @@ function selectColor(event){
 
 //// Submit teams and trigger PLAYERS_JOIN gameState
 function submitTeams(){
-    socket.emit('createTeams', teamColors.slice(0, numberOfTeams));
+    socket.emit('createTeams', teamColors.slice(0, numberOfTeams), turnLengthInput.value);
     gameState = "PLAYERS_JOIN";
     loadJoinScreen();
 }

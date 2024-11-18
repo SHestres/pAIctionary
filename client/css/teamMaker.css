@@ -116,9 +116,21 @@
 
 .finishBtnContainer{
     display: flex;
+    gap: 1vh;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+
+#turnLengthInputLabel {
+    color: white;
+    font-size: 3vh;
+}
+
+.turnLengthInput {
+    font-size: 4vh;
+}
+
 .finishTeamSelectBtn{
     font-size: 4vh;
     
