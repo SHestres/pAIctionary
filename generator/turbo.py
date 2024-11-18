@@ -10,7 +10,6 @@ import threading
 pipe = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16")
 pipe.to("cuda")
 
-# sockAddr = "https://play.hestres.net/"
 sockAddr = "http://localhost:3000"
 
 prompt = " "
