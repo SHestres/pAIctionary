@@ -113,6 +113,7 @@ readyButton.onclick = (e) => {
 
 skipButtonWrapper.onclick = () => {
     wordsList.innerHTML = null;
+    promptInput.value = "";
     socket.emit('skipWords', () => {
         socket.emit('getWords', words => {
             words.forEach(w => addWord(w));
@@ -256,6 +257,9 @@ function addWord(wordText){
     submit.onclick = async () => {
         // Submit word
         socket.emit('submitWord', wordText, getCurrentPrompt())
+
+        //Clear prompt input
+        promptInput.value = "";
 
         // Remove word from screen
         wrap.classList.add('shrink-out');

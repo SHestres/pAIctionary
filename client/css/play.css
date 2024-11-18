@@ -37,6 +37,7 @@ body {
 .promptInput {
     width: 100%;
     height: 10vh;
+    font-size: 4vh;
     margin: 5vh;
 }
 
