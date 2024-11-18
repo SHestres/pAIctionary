@@ -91,7 +91,7 @@ var wordsList = [];
 const loadWords = () => {
     try{
         let wordFile = fs.readFileSync('./words/wordsList.txt', 'utf8');
-        wordsList = wordFile.split(/\r?\n|\r|\n/g).filter(s => s && s.at(0) != '#')
+        wordsList = wordFile.split(/\r?\n|\r|\n/g).filter(s => s != undefined && s.at(0) != '#')
 
         //Shuffle words
         let temp;
@@ -113,6 +113,8 @@ const picWords = (number = 1) => {
     let ret = [];
 
     if(wordsList.length < 3) loadWords();
+
+    if(number == 1) return wordsList.pop();
 
     for(let i = 0; i < number; i++){
         ret.push(wordsList.pop());
@@ -343,31 +345,36 @@ io.on('connection', (socket) => {
     })
 
     socket.on('getWords', (cb) => {
+        console.log("gettingWords");
         cb(currentWords);
     })
 
     socket.on('newWords', (cb) => {
         currentWords = picWords(3);
+        console.log("newWords", currentWords);
         cb();
     })
 
     socket.on('newSingleWord', cb => {
         let newWord = picWords();
         currentWords.push(newWord);
+        console.log("newSingle", currentWords)
         cb(newWord);
     })
 
     socket.on('submitWord', (word, promptText) => {
         log('Word guessed: ' + word + " prompt: " + promptText)
+        console.log('Word guessed: ' + word + " prompt: " + promptText)
         turnSubmittedWords.push({word: word, prompt: promptText})
         try{
         currentWords.splice(currentWords.indexOf(word), 1);
-        } catch {}
+        } catch {console.log("submitErr")}
     })
     
     socket.on('skipWords', cb => {
         currentWords.forEach(w => turnSkippedWords.push(w));
         currentWords = picWords(3);
+        console.log('words skipped', currentWords)
         cb();
     })
 
