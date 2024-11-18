@@ -345,36 +345,31 @@ io.on('connection', (socket) => {
     })
 
     socket.on('getWords', (cb) => {
-        console.log("gettingWords");
         cb(currentWords);
     })
 
     socket.on('newWords', (cb) => {
         currentWords = picWords(3);
-        console.log("newWords", currentWords);
         cb();
     })
 
     socket.on('newSingleWord', cb => {
         let newWord = picWords();
         currentWords.push(newWord);
-        console.log("newSingle", currentWords)
         cb(newWord);
     })
 
     socket.on('submitWord', (word, promptText) => {
         log('Word guessed: ' + word + " prompt: " + promptText)
-        console.log('Word guessed: ' + word + " prompt: " + promptText)
         turnSubmittedWords.push({word: word, prompt: promptText})
         try{
         currentWords.splice(currentWords.indexOf(word), 1);
-        } catch {console.log("submitErr")}
+        } catch {}
     })
     
     socket.on('skipWords', cb => {
         currentWords.forEach(w => turnSkippedWords.push(w));
         currentWords = picWords(3);
-        console.log('words skipped', currentWords)
         cb();
     })
 
@@ -524,7 +519,7 @@ function startPreturn (displayOnly = false){
 }
 
 function startPostTurn(){
-    console.log('Starting post turn');
+    //console.log('Starting post turn');
     gameState = gameStates.POST_TURN;
     io.emit('startPostTurn');
 }
@@ -540,4 +535,5 @@ function getTurnPlayerInds(){
 
 // Can't use app.listen, it will create a new httpserver
 httpServer.listen(port, '0.0.0.0');
-console.log('listening at http://localhost:' + port)
+//console.log('listening at http://localhost:' + port)
+console.log('Server started')
