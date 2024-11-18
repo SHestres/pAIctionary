@@ -13,7 +13,7 @@ import path from 'path'
 //import { dirname } from 'path'
 //import { fileURLToPath } from 'url'
 //const __dirname = dirname(fileURLToPath(import.meta.dirname))
-import {generate as picWords} from 'random-words'
+import fs from 'node:fs'
 
 process.on("SIGINT", () => {
     console.info("Interrupted");
@@ -28,9 +28,6 @@ const io = new Server(httpServer, {
 
 const port = 3000;
 var eventLog = [];
-
-//console.log(generate(3));
-console.log(picWords(3))
 
 // Serve webpage files
 /*app.use(express.static(path.join(__dirname, 'pages'),{extensions:['html']}));
@@ -47,6 +44,9 @@ app.use('/img', express.static('img'));
 app.get('/', (req, res) => {
     res.redirect('/join')
 })
+
+
+//// Game Setup ////
 
 var startTime = Date.now();
 var players = {};
@@ -82,6 +82,42 @@ const restartGame = () => {
     turnSkippedWords = [];
     turnStartTime = 0;
     gameState = gameStates.CREATE_TEAMS;
+}
+
+//// Words List Stuff ////
+
+var wordsList = [];
+
+const loadWords = () => {
+    try{
+        let wordFile = fs.readFileSync('./words/wordsList.txt', 'utf8');
+        wordsList = wordFile.split(/\r?\n|\r|\n/g).filter(s => s && s.at(0) != '#')
+
+        //Shuffle words
+        let temp;
+        for(let i = wordsList.length; i > 0; i--){
+            let randInd = Math.floor(Math.random() * i);
+            temp = wordsList[randInd];
+            wordsList[randInd] = wordsList[i];
+            wordsList[i] = temp;
+        }
+    }
+    catch (err){
+        console.error(err);
+    }
+}
+
+loadWords();
+
+const picWords = (number = 1) => {
+    let ret = [];
+
+    if(wordsList.length < 3) loadWords();
+
+    for(let i = 0; i < number; i++){
+        ret.push(wordsList.pop());
+    }
+    return ret;
 }
 
 // Check cookies during handshake
