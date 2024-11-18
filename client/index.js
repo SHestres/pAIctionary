@@ -59,6 +59,7 @@ var currentWords = [];
 var turnSkippedWords = [];
 
 var turnStartTime = 0;
+var turnStillActive = [];
 
 var gameStates = {
     CREATE_TEAMS: "CREATE_TEAMS",
@@ -71,6 +72,7 @@ var gameStates = {
 var gameState = gameStates.CREATE_TEAMS;
 
 const restartGame = () => {
+    turnStillActive.fill(false);
     startTime = Date.now();
     teams = [];
     turnCount = 0;
@@ -405,6 +407,8 @@ io.on('connection', (socket) => {
 });
 
 async function startRound(){
+    let turnNumber = turnStillActive.length;
+    turnStillActive.push(true);
     gameState = gameStates.TURN;
     io.to('display').emit('startCountdown')
     await new Promise(r => setTimeout(r, 3000));
@@ -412,7 +416,10 @@ async function startRound(){
     turnStartTime = Date.now();
     await new Promise(r => setTimeout(r, roundLength * 1000));
     turnStartTime = 0;
-    startPostTurn();
+    if(turnStillActive[turnNumber]){
+        turnStillActive[turnNumber] = false;
+        startPostTurn();
+    }
 }
 
 function nextRound(){
