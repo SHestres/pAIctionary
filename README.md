@@ -97,10 +97,12 @@ Here are the steps to install and run
     pip install -r /path/to/requirements.txt
     ```
 4. Run the program
-   ```
+    ```
     python /path/to/generator.py
     ```
-6. That's it!
+    The first time you run the generator, it will need to download the image generation model. This may take 5-15 minutes depending on your internet speed. If you're using windows, you will also get a message asking you to run as an administrator. Doing so is optional, but it can reduce file sizes.
+   
+5. That's it!
 
 ## Starting and Stopping the game
 
