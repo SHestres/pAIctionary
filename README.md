@@ -96,11 +96,17 @@ Here are the steps to install and run
     ```
     pip install -r /path/to/requirements.txt
     ```
-4. Run the program
-   ```
+4. Change the server address in the script
+    - If you're running the generator and web server on the same device, you can skip this step.
+    - Open generator.py in the text editor of your choice and change the line ```sockAddr = "http://localhost:7242"``` to the address of your web server
+    - For example it should be ```sockAddr = "https://play.example.com/"``` or ```sockAddr = "http://192.168.0.100:7242"```
+6. Run the program
+    ```
     python /path/to/generator.py
     ```
-6. That's it!
+    The first time you run the generator, it will need to download the image generation model. This may take 5-15 minutes depending on your internet speed. If you're using windows, you will also get a message asking you to run as an administrator. Doing so is optional, but it can reduce file sizes.
+   
+7. That's it!
 
 ## Starting and Stopping the game
 
