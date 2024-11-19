@@ -34,7 +34,11 @@ async def pollServer(socket):
     socket.call("stillThere")
 
 with socketio.SimpleClient() as sio:
-    sio.connect(sockAddr)
+    try:
+        sio.connect(sockAddr)
+    except:
+        print("Server not running. Start the web server first!")
+        exit()
     sio.emit("identifyGenerator")
     
     keepConnected = True
